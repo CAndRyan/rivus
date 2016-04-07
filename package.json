@@ -1,0 +1,34 @@
+{
+  "name": "rivus",
+  "version": "1.0.0",
+  "description": "Social aggregator for your feeds",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^3.3.4",
+    "gulp": "^3.9.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "mocha": "^2.4.5"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaredwray/rivus.git"
+  },
+  "keywords": [
+    "social",
+    "twitter",
+    "instagram",
+    "medium",
+    "rss"
+  ],
+  "author": "Jared Wray",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/jaredwray/rivus/issues"
+  },
+  "homepage": "https://github.com/jaredwray/rivus#readme"
+}
