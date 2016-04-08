@@ -4,8 +4,7 @@
   "description": "Social aggregator for your feeds",
   "main": "index.js",
   "dependencies": {
-    "bluebird": "^3.3.4",
-    "gulp": "^3.9.1"
+    "bluebird": "^3.3.4"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
