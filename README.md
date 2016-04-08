@@ -1,2 +1,2 @@
 # rivus
-Your social streams aggregated into a single stream (example jaredwray.com)
+Social aggregation into a single stream (example: jaredwray.com)
