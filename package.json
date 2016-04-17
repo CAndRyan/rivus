@@ -2,7 +2,7 @@
   "name": "rivus",
   "version": "1.0.0",
   "description": "Social aggregator for your feeds",
-  "main": "index.js",
+  "main": "rivus.js",
   "dependencies": {
     "bluebird": "^3.3.4"
   },
