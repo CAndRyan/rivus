@@ -10,8 +10,9 @@ Social aggregation into a single feed (example: jaredwray.com)
 * Many Providers
 
 # How To Use Rivus
-**Step 1**: Set your the provider configuration file up correctly to support what providers you want to use and the settings / authentication needed.
-**Step 2**: Do the following code to get the feed results (using promises. Note that callbacks are also supported):
+### **Step 1**: Set your the provider configuration file up correctly to support what providers you want to use and the settings / authentication needed.
+
+### **Step 2**: Do the following code to get the feed results (using promises. Note that callbacks are also supported):
 ```javascript
     var Rivus = require("riv.us");
 
