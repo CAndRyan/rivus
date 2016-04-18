@@ -1,4 +1,4 @@
-# Rivus (http://riv.us)
+# Rivus (http://riv.us) [![Circle CI](https://circleci.com/gh/jaredwray/rivus.svg?style=svg&circle-token=a205a8a619b81eb76f74b8bad198065576252fa7)](https://circleci.com/gh/jaredwray/rivus)
 Social aggregation into a single feed (example: jaredwray.com)
 
 # Features
@@ -14,13 +14,20 @@ Social aggregation into a single feed (example: jaredwray.com)
 ```
 {
     dataStore: {
-
+        type: "none",
+        settings: {
+            //put your settings here
+        }
     },
     caching: {
-
+        type: "memory",
+        settings: {
+            ttl: 3600
+        }
     },
     providers: [
         {name: "twitter"},
+        {name: "medium", user: "@username"}
 
     ]
 }
