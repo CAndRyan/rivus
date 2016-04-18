@@ -57,7 +57,7 @@ The standard feed result will look like the following:
     title,
     description,
     imageUrl,
-    dateCreated,
+    pubDate,
     url
 }
 ```

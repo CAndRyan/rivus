@@ -6,7 +6,7 @@
         Cache = require("./services/cache"),
         Feed = require("./services/feed");
 
-    var fons = function(config) {
+    var rivus = function(config) {
 
         this.config = new Config(this.config);
 
@@ -16,5 +16,5 @@
 
         //TODO: Addin in global functions
     };
-    module.exports = fons;
+    module.exports = rivus;
 }).call(this);
