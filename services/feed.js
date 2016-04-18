@@ -4,4 +4,4 @@ var feed = function() {
 
 };
 
-export.modules = feed;
+module.exports = feed;

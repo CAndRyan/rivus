@@ -8,4 +8,4 @@ provider.prototype.create = function(providerName) {
 
 };
 
-export.modules = provider;
+module.exports = provider;

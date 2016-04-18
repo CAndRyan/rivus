@@ -4,4 +4,4 @@ var cache = function() {
 
 };
 
-export.modules = cache;
+module.exports = cache;

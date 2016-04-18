@@ -4,4 +4,4 @@ var dataStore = function() {
 
 };
 
-export.modules = dataStore;
+module.exports = dataStore;

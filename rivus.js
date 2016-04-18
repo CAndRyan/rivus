@@ -1,7 +1,7 @@
 "use strict";
 
 (function() {
-    var dataStore = require("./services/dataStore"),
+    var DataStore = require("./services/dataStore"),
         Config = require("./services/config"),
         Cache = require("./services/cache"),
         Feed = require("./services/feed");
