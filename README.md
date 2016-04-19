@@ -45,7 +45,7 @@ Social aggregation into a single feed (example: jaredwray.com)
 ```
 
 By default the following is enabled:
-* In Memory Caching with a TTL of 3600 (6 Hours)
+* In Memory Caching with a TTL of 3600 (1 Hour)
 * Deduplication is enabled by default.
 
 # Standard Feed Result
