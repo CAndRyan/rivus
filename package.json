@@ -5,7 +5,8 @@
   "main": "rivus.js",
   "dependencies": {
     "bluebird": "^3.3.4",
-    "cache-manager": "^2.0.1"
+    "cache-manager": "^2.0.1",
+    "cache-manager-redis": "^0.2.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
