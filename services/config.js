@@ -20,4 +20,15 @@ var config = function(param) {
     }
 };
 
+config.prototype.getProvider = function(name) {
+
+    this.data.providers.forEach(function(provider) {
+        if(provider.name == name) {
+            return provider;
+        }
+    });
+
+    return null;
+};
+
 module.exports = config;
