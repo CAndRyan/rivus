@@ -5,13 +5,14 @@ var b = require('bluebird');
 var twit;
 
 var twitter = function(config) {
-    this.config = config.getProvider('twitter');
+    this.config = config
+    this.pc = config.getProvider('twitter');
 
     this.twit = new twitter({
-        consumer_key: config.twitter_consumer_key,
-        consumer_secret: config.twitter_consumer_secret,
-        access_token_key: config.twitter_access_token_key,
-        access_token_secret: config.twitter_access_token_secret
+        consumer_key: pc.consumer_key,
+        consumer_secret: pc.consumer_secret,
+        access_token_key: pc.access_token_key,
+        access_token_secret: pc.access_token_secret
     });
 };
 
@@ -19,7 +20,7 @@ twitter.prototype.get = function(count, callback) {
     d = b.pending();
 
     var params = {
-    screen_name: config.handle, // the user id passed in as part of the route
+    screen_name: pc.handle, // the user id passed in as part of the route
     count: count // how many tweets to return
     };
 
