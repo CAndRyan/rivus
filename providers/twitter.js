@@ -7,23 +7,21 @@ var twit;
 var const ID = "twitter";
 
 var twitter = function(config) {
-    this.config = config
-    this.pc = config.getProvider('twitter');
-
-    this.twit = new twitter({
-        consumer_key: pc.consumer_key,
-        consumer_secret: pc.consumer_secret,
-        access_token_key: pc.access_token_key,
-        access_token_secret: pc.access_token_secret
-    });
+    this.setConfig(config);
 };
 
-twitter.prototype.get = function(count, callback) {
+twitter.prototype.get = function(options, callback) {
     d = b.pending();
+
+    var count = 50;
+
+    if(options.count) {
+        count = options.count;
+    }
 
     var params = {
     screen_name: pc.handle, // the user id passed in as part of the route
-    count: count // how many tweets to return
+    count: options.count // how many tweets to return
     };
 
     // request data
@@ -39,6 +37,18 @@ twitter.prototype.get = function(count, callback) {
 
     d.asCallback(callback);
     return d.promise;
+};
+
+twitter.prototype.setConfig = function(config) {
+    this.config = config
+    this.pc = config.getProvider('twitter');
+
+    this.twit = new twitter({
+        consumer_key: pc.consumer_key,
+        consumer_secret: pc.consumer_secret,
+        access_token_key: pc.access_token_key,
+        access_token_secret: pc.access_token_secret
+    });
 };
 
 modules.export = twitter;

@@ -63,7 +63,8 @@ The standard feed result will look like the following:
 
 # Providers
 Providers are built with a set of common interfaces so that they can be interchangable. Each provider allows for the following:
-* configuration / settings ```setConfig(setting, callback)```: each config can be located in the ```providers/config.json``` configuration file.
+* ID is required for every provider and it cannot be the same as another. This is done as a constant such as ```var const ID = 'providerID'```
+* configuration / settings ```setConfig(config)``` or at the creation of the service ```var obj = new Service(config);``` : each config can be located in the ```/config.json``` configuration file under the ```providers:``` array.
 * get feed items ```get(options, callback)```: This allows to get the feed items in a normalized look and feel.
 
 Here is a list of providers currently supported:
