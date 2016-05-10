@@ -4,6 +4,8 @@ var twitter = require('twitter');
 var b = require('bluebird');
 var twit;
 
+var const ID = "twitter";
+
 var twitter = function(config) {
     this.config = config
     this.pc = config.getProvider('twitter');

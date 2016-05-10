@@ -53,7 +53,6 @@ The standard feed result will look like the following:
 ```javascript
 {
     providerID,
-    providerName,
     title,
     description,
     imageUrl,
@@ -72,7 +71,6 @@ Here is a list of providers currently supported:
 * Instagram
 * Twitter
 * RSS
-* Atom
 * Medium
 * Facebook
 * Linkedin
