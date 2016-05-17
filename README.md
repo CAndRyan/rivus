@@ -3,7 +3,7 @@ Social aggregation into a single feed (example: jaredwray.com)
 
 # Features
 * Single Feed
-* Built in Deduplication
+* Built in Deduplication    
 * Caching
 * Data Store
 * Callback and Promises Supported
@@ -63,7 +63,7 @@ The standard feed result will look like the following:
 
 # Providers
 Providers are built with a set of common interfaces so that they can be interchangable. Each provider allows for the following:
-* ID is required for every provider and it cannot be the same as another. This is done as a constant such as ```var const ID = 'providerID'```
+* ID is required for every provider and it cannot be the same as another. This is done as a constant such as ```ID = 'providerID'```
 * configuration / settings ```setConfig(config)``` or at the creation of the service ```var obj = new Service(config);``` : each config can be located in the ```/config.json``` configuration file under the ```providers:``` array.
 * get feed items ```get(options, callback)```: This allows to get the feed items in a normalized look and feel.
 

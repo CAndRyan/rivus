@@ -4,10 +4,9 @@ var b = require('bluebird');
 
 var feed = b.promisefyAll(require("feed-read"));
 
-var const ID = "rss"
-
 var rss = function(config) {
     this.setConfig(config);
+    this.ID = 'rss';
 };
 
 rss.prototype.get = function(count, callback) {

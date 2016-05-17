@@ -4,10 +4,9 @@ var twitter = require('twitter');
 var b = require('bluebird');
 var twit;
 
-var const ID = "twitter";
-
 var twitter = function(config) {
     this.setConfig(config);
+    this.ID = 'twitter';
 };
 
 twitter.prototype.get = function(options, callback) {
