@@ -1,0 +1,18 @@
+{
+    "dataStore": {
+        "type": "none",
+        "settings": {
+        }
+    },
+    "caching": {
+        "type": "memory",
+        "settings": {
+            "ttl": 3600
+        }
+    },
+    "providers": [
+        {"name": "twitter"},
+        {"name": "medium", "user": "@username"}
+
+    ]
+}

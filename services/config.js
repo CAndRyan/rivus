@@ -1,7 +1,7 @@
 "use strict";
 
 var b = require('bluebird');
-var fs = b.promisifyAll(require('fs'));
+var fs = require('fs');
 
 var config = function(param) {
 
@@ -12,12 +12,15 @@ var config = function(param) {
     } else if (typeof(param) == "object") {
         this.data = param;
     }
-
-    if(!this.filePath) {
-        fs.readFile(this.filePath, 'utf8').then(function(result) {
-            this.data = JSON.parse(result);
-        });
+/*
+    if(this.filePath) {
+        this.data = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
     }
+    */
+};
+
+config.prototype.get = function() {
+    return this.data;
 };
 
 config.prototype.getProvider = function(name) {

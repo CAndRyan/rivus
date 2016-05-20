@@ -13,21 +13,20 @@ Social aggregation into a single feed (example: jaredwray.com)
 **Step 1**: Set your the provider configuration file up correctly to support what providers you want to use and the settings / authentication needed.
 ```
 {
-    dataStore: {
-        type: "none",
-        settings: {
-            //put your settings here
+    "dataStore": {
+        "type": "none",
+        "settings": {
         }
     },
-    caching: {
-        type: "memory",
-        settings: {
-            ttl: 3600
+    "caching": {
+        "type": "memory",
+        "settings": {
+            "ttl": 3600
         }
     },
-    providers: [
-        {name: "twitter"},
-        {name: "medium", user: "@username"}
+    "providers": [
+        {"name": "twitter"},
+        {"name": "medium", "user": "@username"}
 
     ]
 }

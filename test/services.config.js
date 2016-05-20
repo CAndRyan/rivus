@@ -2,12 +2,19 @@
 
 var assert = require('chai').assert;
 
-
-describe('Array', function() {
-  describe('#indexOf()', function () {
-    it('should return -1 when the value is not present', function () {
-      assert.equal(-1, [1,2,3].indexOf(5));
-      assert.equal(-1, [1,2,3].indexOf(0));
+describe('services.config', function() {
+    describe('init', function() {
+        it('should have a service that is not undefined', function () {
+            var Config = require('../services/config');
+            var config = new Config();
+            assert.equal(config.filePath, 'rivus.json' );
+        });
+/*
+        it('should handle a filePath', function () {
+            var Config = require('../services/config');
+            var config = new Config("services.config.json");
+            assert.equal(config.filePath, 'services.config.json' );
+        });
+*/
     });
-  });
 });
