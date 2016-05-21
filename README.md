@@ -74,3 +74,4 @@ Here is a list of providers currently supported:
 * Medium
 * Facebook
 * Linkedin
+* JSON
