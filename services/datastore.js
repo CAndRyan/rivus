@@ -2,8 +2,16 @@
 
 var b = require('bluebird');
 
+var redis = require('redis');
+b.promisifyAll(redis.RedisClient.prototype);
+b.promisifyAll(redis.Multi.prototype);
+
 var ds = function(config) {
     this.config = config;
+
+    var dbconf = this.config.datastore.settings;
+
+    this.provider = redis.createClient(dbconf.host, dbconf.port);
 };
 
 ds.prototype.get = function(id, callback) {
