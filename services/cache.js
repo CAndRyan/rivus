@@ -1,7 +1,6 @@
 "use strict";
 
 var cacheManager = require('cache-manager');
-var redisStore = require('cache-manager-redis');
 var b = require('bluebird');
 
 var cache = function(config) {
@@ -14,21 +13,8 @@ var cache = function(config) {
 cache.prototype.init = function(config, callback) {
     var d = b.pending();
 
-    if(config.cache.type == "redis") {
-        this.ds = cacheManager.caching({
-                	store: redisStore,
-                	host: config.cache.host,
-                	port: config.cache.port,
-                	auth_pass: config.cache.auth_pass,
-                	db: config.cache.db,
-                	ttl: config.cache.ttl
-                });
-
-        d.resolve();
-    } else { //default to memory
-        this.ds = cacheManager.caching({store: 'memory', max: 100, ttl: 3600});
-        d.resolve();
-    }
+    this.ds = cacheManager.caching({store: 'memory', max: 100, ttl: 3600});
+    d.resolve();
 
     b.asCallback(callback);
     return d.promise;

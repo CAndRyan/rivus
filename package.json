@@ -6,7 +6,6 @@
   "dependencies": {
     "bluebird": "^3.3.4",
     "cache-manager": "^2.0.1",
-    "cache-manager-redis": "^0.2.2",
     "feed-read": "0.0.1",
     "medium-sdk": "0.0.3"
   },

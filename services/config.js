@@ -16,7 +16,8 @@ var config = function(param) {
     if(this.filePath) {
         this.data = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
     }
-    */
+*/
+
 };
 
 config.prototype.get = function() {
@@ -26,7 +27,7 @@ config.prototype.get = function() {
 config.prototype.getProvider = function(name) {
 
     this.data.providers.forEach(function(provider) {
-        if(provider.name == name) {
+        if(provider.name.toLowerCase() == name.toLowerCase()) {
             return provider;
         }
     });
