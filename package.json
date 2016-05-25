@@ -8,6 +8,7 @@
     "cache-manager": "^2.0.1",
     "feed-read": "0.0.1",
     "medium-sdk": "0.0.3",
+    "moment": "^2.13.0",
     "redis": "^2.6.0-2"
   },
   "devDependencies": {

@@ -5,7 +5,7 @@
             "host": "pub-redis-10049.us-east-1-2.2.ec2.garantiadata.com",
             "port": "10049",
             "db": "1c784c4a-8590-416b-af9c-d358c6d95cae",
-            "pass": "6GNMT7UcbZlkPTBq"
+            "password": "6GNMT7UcbZlkPTBq"
         }
     },
     "caching": {
