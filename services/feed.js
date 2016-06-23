@@ -1,42 +1,31 @@
-"use strict";
+'use strict';
 
-var b = require('bluebird');
-var provider = require('./provider');
-var cache = require('./cache');
+var Promise = require('es6-promise').Promise;
+var Merge = require('./merge');
+var Provider = require('./provider');
+var Cache = require('./cache');
 
-
-var feed = function(config) {
-    this.config = config;
-};
-
-feed.prototype.get = function(count, callback) {
-    var d = b.pending();
-
-    var cacheKey = cache.generateKey(count, "feed-get");
-
-    cache.get(cacheKey).then(function(data) {
-        d.resolve(data);
-    }).fail(function(error) {
-        var providers = [];
-
-        this.config.providers.forEach(function(p) {
-            providers.push(provider.create(p.name, p.options).get(count));
-        });
-
-        d.all(providers).then(function(result) {
-
-            var resultList = [];
-            result.forEach(function(r) {
-                resultList.push(r);
-            });
-
-            //TODO: sort the array
-        });
-
+function createProviders(config) {
+  return config.get().then(function withConfig(configAttrs) {
+    return configAttrs.providers.map(function createProvider(providerConfig) {
+      return Provider.create(providerConfig);
     });
+  });
+}
 
-    d.asCallback(callback);
-    return d.promise;
+
+function Feed(config) {
+  this._cache = new Cache(config);
+  this._providers = createProviders(config);
+}
+
+Feed.prototype.get = function getFeed(count) {
+  return this._providers.then(function withProviders(providers) {
+    var getPromises = providers.map(function getProviderFeed(provider) {
+      return provider.get(count);
+    });
+    return Promise.all(getPromises).then(Merge.bind(null, providers));
+  });
 };
 
-module.exports = feed;
+module.exports = Feed;

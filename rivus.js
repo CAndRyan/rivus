@@ -1,20 +1,34 @@
-"use strict";
+'use strict';
 
-(function() {
-    var DataStore = require("./services/dataStore"),
-        Config = require("./services/config"),
-        Cache = require("./services/cache"),
-        Feed = require("./services/feed");
+(function initialize() {
+  var DEFAULT_POST_COUNT = 20;
 
-    var rivus = function(config) {
+  var Config = require('./services/config');
+  var Feed = require('./services/feed');
 
-        this.config = new Config(this.config);
+  function Rivus(config) {
+    this._config = new Config(config);
+    this._feed = new Feed(this._config);
+  }
 
-        this.dataStore = new DataStore(this.config);
-        this.cache = new Cache(this.config);
-        this.feed = new Feed(this.config);
-
-        //TODO: Addin in global functions
+  Rivus.prototype.getFeed = function getFeed(postCount, callback) {
+    var params = {
+      postCount: postCount,
+      callback: callback
     };
-    module.exports = rivus;
-}).call(this);
+
+    if (typeof (postCount) === 'function') {
+      params.callback = postCount;
+      params.postCount = DEFAULT_POST_COUNT;
+    }
+
+    if (typeof (params.callback) !== 'function') {
+      return this._feed.get(params.postCount);
+    }
+
+    return this._feed.get(params.postCount)
+      .then(params.callback.bind(null, null), params.callback.bind(null));
+  };
+
+  module.exports = Rivus;
+})();

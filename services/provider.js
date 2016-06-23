@@ -1,18 +1,49 @@
-"use strict";
+'use strict';
 
-var p = function(config) {
-    this.config = config;
+function providerSourceFileFromName(providerName) {
+  return '../providers/' + providerName;
+}
+
+function requireProvider(providerName) {
+  return require(providerSourceFileFromName(providerName));
+}
+
+function Provider() {
+  throw new Error('providers should be instantiated by calling Provider.create');
+}
+
+Provider.create = function createProvider(providerConfig) {
+  var providerName = providerConfig.name;
+  try {
+    var ProviderClass = requireProvider(providerName);
+    return new ProviderClass(providerConfig);
+  } catch (e) {
+    throw new Error('provider not included: ' + providerName);
+  }
 };
 
-p.prototype.create = function(providerName) {
-    try {
-        var providerPath = '../../providers/' + providerName;
-        var Provider = require(providerPath);
-
-        return new Provider(this.config);
-    } catch (error) {
-        throw error;
-    }
+Provider.exists = function providerExists(providerName) {
+  try {
+    require.resolve(providerSourceFileFromName(providerName));
+    return true;
+  } catch (e) {
+    console.log(e);
+    return false;
+  }
 };
 
-module.exports = p;
+Provider.verifyConfig = function verifyProviderConfig(config) {
+  if (!Provider.exists(config.name)) {
+    return new Error('provider module `' + config.name + '` not installed');
+  }
+
+  var ProviderClass = requireProvider(config.name);
+
+  if (ProviderClass.verifyConfig) {
+    return ProviderClass.verifyConfig(config);
+  }
+  
+  return null;
+};
+
+module.exports = Provider;

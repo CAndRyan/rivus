@@ -1,30 +1,69 @@
-"use strict";
+'use strict';
+var Promise = require('es6-promise').Promise;
+var feed = require('feed-read');
+var moment = require('moment');
 
-var b = require('bluebird');
+function Rss(config) {
+  this.name = config.name;
+  this.url = config.feed_url;
+}
 
-var feed = b.promisefyAll(require("feed-read"));
-
-var rss = function(config) {
-    this.setConfig(config);
-    this.ID = 'rss';
-};
-
-rss.prototype.get = function(count, callback) {
-    var d = b.pending();
-
-    feed(pc.url).then(function(result) {
-        d.resolve(result); //TODO: Need to get the correct format coming back
-    }).fail(function(error) {
-        d.reject(error);
+Rss.prototype.get = function getRss(count, callback) {
+  var self = this;
+  return new Promise(function executor(resolve, reject) {
+    feed(self.url, function feedCallback(err, response) {
+      if (err) {
+        if (callback) {
+          callback(err, null);
+        }
+        return reject(err);
+      }
+      if (callback) {
+        callback(null, prepare(response, count));
+      }
+      return resolve(prepare(response, count));
     });
-
-    d.asCallback(callback);
-    return d.promise;
+  });
 };
 
-rss.prototype.setConfig = function(config) {
-    this.config = config;
-    this.pc = config.getProvider('rss');
-};
+function prepare(response, count) {
+  return response.slice(0, count).map(model);
+}
 
-modules.export = rss;
+function model(item) {
+  var original = prefix(item, 'rss-');
+  return {
+    title: item.title,
+    content: item.content,
+    created_time: moment(item.published).toString(),
+    images: images(item.content),
+    source: {
+      feed: original
+    }
+  };
+}
+
+function images(content) {
+  var rex = /src="([^"]*)"/i;
+  var match = rex.exec(content);
+  if (Array.isArray(match) && match[1]) {
+    return {
+      thumbnail: {
+        url: match[1]
+      }
+    };
+  }
+  return {};
+}
+
+function prefix(obj, pref) {
+  var out = {};
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      out[pref + key] = obj[key];
+    }
+  }
+  return out;
+}
+
+module.exports = Rss;
