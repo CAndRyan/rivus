@@ -2,6 +2,7 @@
 
 var Promise = require('es6-promise').Promise;
 var fs = require('fs');
+var errors = require('../common/errors');
 
 var Provider = require('./provider');
 
@@ -24,13 +25,6 @@ var CACHE_DEFAULTS = {
 };
 
 
-function ConfigError(message) {
-  this.name = 'RivusConfigError';
-  this.message = message || 'invalid configuration given to Rivus';
-}
-ConfigError.prototype = Error.prototype;
-
-
 function cookConfigItem(target, defaults) {
   var configItem = {};
 
@@ -50,7 +44,7 @@ function cookCacheConfig(rawCacheConfig) {
     if (defaults) {
       return cookConfigItem(rawConfig, defaults);
     }
-    throw new ConfigError('invalid cache configuration for layer ', rawConfig.store);
+    throw new errors.ConfigError('invalid cache configuration for layer ', rawConfig.store);
   }
 
   if (!rawCacheConfig) {
@@ -60,12 +54,12 @@ function cookCacheConfig(rawCacheConfig) {
   } else if (typeof (rawCacheConfig) === 'object') {
     var config = cookCacheItemConfig(rawCacheConfig);
     if (!config) {
-      throw new ConfigError('invalid cache configuration');
+      throw new errors.ConfigError('invalid cache configuration');
     }
     return config;
   }
 
-  throw new ConfigError('invalid cache configuration');
+  throw new errors.ConfigError('invalid cache configuration');
 }
 
 
@@ -74,19 +68,19 @@ function cookProvidersConfig(rawProvidersConfig) {
     if (typeof (rawConfig.name) === 'string') {
       var error = Provider.verifyConfig(rawConfig);
       if (error) {
-        throw new ConfigError(error.message);
+        throw new errors.ConfigError(error.message);
       }
       return rawConfig;
     }
 
-    throw new ConfigError('invalid providers configuration: missing provider name');
+    throw new errors.ConfigError('invalid providers configuration: missing provider name');
   }
 
   if (Array.isArray(rawProvidersConfig)) {
     return rawProvidersConfig.map(cookProviderItemConfig);
   }
 
-  throw new ConfigError('invalid providers configuration');
+  throw new errors.ConfigError('invalid providers configuration');
 }
 
 
@@ -102,7 +96,7 @@ function parseJsonFromFile(path, json) {
   try {
     return JSON.parse(json);
   } catch (e) {
-    throw new ConfigError('error reading config file "' + path + '": is not valid JSON');
+    throw new errors.ConfigError('error reading config file "' + path + '": is not valid JSON');
   }
 }
 
@@ -111,7 +105,7 @@ function readFile(path) {
   return new Promise(function executor(resolve, reject) {
     fs.readFile(path, 'utf8', function readFileCallback(err, data) {
       if (err) {
-        reject(new ConfigError('error reading config file "' + path + '": ' + err.message));
+        reject(new errors.ConfigError('error reading config file "' + path + '": ' + err.message));
         return;
       }
       resolve(data);

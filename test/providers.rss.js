@@ -54,5 +54,29 @@ describe('providers.rss', function() {
       expect(response[0].images).to.be.a('object');
     });
   });
+
+  it('RSS provider should have config validator', function () {
+    var Rss = require('../providers/rss');
+    expect(Rss.verifyConfig).to.be.exist;
+  });
+
+  it('Validator should return a null with valid config', function () {
+    var CONFIG = {
+      "name": "rss",
+      "feed_url": "http://www.ixbt.com/export/articles.rss"
+    };
+
+    var Rss = require('../providers/rss');
+    expect(Rss.verifyConfig(CONFIG)).to.be.a('null');
+  });
+
+  it('Validator should return not a null with invalid config', function () {
+    var Rss = require('../providers/rss');
+    expect(Rss.verifyConfig({})).to.be.not.a('null');
+    expect(Rss.verifyConfig({name: 'rss'})).to.be.not.a('null');
+    expect(Rss.verifyConfig({name: 'rss', feed_url: 'test'})).to.be.not.a('null');
+  });
+
+
 });
 

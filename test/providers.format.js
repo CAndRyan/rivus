@@ -11,7 +11,9 @@ var COMMON_FORMAT = {
   created_time: '',
   images: {},
   source: {
-    feed: {}
+    name: '',
+    feed: '',
+    extra: {}
   }
 };
 
@@ -66,6 +68,14 @@ describe('providers.format', function() {
       .then(function (response) {
         response.forEach(function (item) {
           expect(item).to.have.all.keys(COMMON_FORMAT);
+          expect(item.title).to.be.a('string');
+          expect(item.content).to.be.a('string');
+          expect(item.created_time).to.be.a('string');
+          expect(item.images).to.be.an('object');
+          expect(item.source).to.be.an('object');
+          expect(item.source.name).to.be.a('string');
+          expect(item.source.feed).to.be.a('string');
+          expect(item.source.extra).to.be.an('object');
         });
       });
   });

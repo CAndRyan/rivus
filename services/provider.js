@@ -27,7 +27,6 @@ Provider.exists = function providerExists(providerName) {
     require.resolve(providerSourceFileFromName(providerName));
     return true;
   } catch (e) {
-    console.log(e);
     return false;
   }
 };

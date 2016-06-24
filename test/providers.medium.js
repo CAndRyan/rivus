@@ -139,5 +139,29 @@ describe('providers.medium', function() {
     });
   });
 
+
+  it('Medium provider should have config validator', function () {
+    var Medium = require('../providers/medium');
+    expect(Medium.verifyConfig).to.be.exist;
+  });
+
+  it('Validator should return a null with valid config', function () {
+    var CONFIG = {
+      "name": "medium",
+      "user": "@davepell"
+    };
+
+    var Medium = require('../providers/medium');
+    expect(Medium.verifyConfig(CONFIG)).to.be.a('null');
+  });
+
+  it('Validator should return not a null with invalid config', function () {
+    var Medium = require('../providers/medium');
+    expect(Medium.verifyConfig({})).to.be.not.a('null');
+    expect(Medium.verifyConfig({name: 'medium'})).to.be.not.a('null');
+    expect(Medium.verifyConfig({name: 'medium', user: 'test'})).to.be.not.a('null');
+    expect(Medium.verifyConfig({name: 'medium', publication_with_custom_domain: 'test'})).to.be.not.a('null');
+  });
+
 });
 

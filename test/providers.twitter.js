@@ -16,8 +16,8 @@ var CONFIG = {
   access_token_secret: '3123131'
 };
 
-describe('providers.instagram', function() {
-  it('should have a instagram provider that is not undefined', function () {
+describe('providers.twitter', function() {
+  it('should have a Twitter provider that is not undefined', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Twitter = require('../providers/twitter');
     expect(Twitter).to.be.exist;
@@ -51,7 +51,7 @@ describe('providers.instagram', function() {
     });
   });
 
-  it('Instagram item should be an object', function () {
+  it('Twitter item should be an object', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Twitter = require('../providers/twitter');
     var tw = new Twitter(CONFIG);
@@ -59,6 +59,34 @@ describe('providers.instagram', function() {
       expect(response[0]).to.be.a('object');
       expect(response[0].images).to.be.a('object');
     });
+  });
+
+  it('Twitter provider should have config validator', function () {
+    var Twitter = require('../providers/twitter');
+    expect(Twitter.verifyConfig).to.be.exist;
+  });
+
+  it('Validator should return a null with valid config', function () {
+    var CONFIG = {
+      "name": "twitter",
+      "user": "test",
+      "consumer_key": "foo",
+      "consumer_secret": "bar",
+      "access_token_key": "baz",
+      "access_token_secret": "foo"
+    };
+
+    var Twitter = require('../providers/twitter');
+    expect(Twitter.verifyConfig(CONFIG)).to.be.a('null');
+  });
+
+  it('Validator should return not a null with invalid' +
+    ' config', function () {
+    var Twitter = require('../providers/twitter');
+    expect(Twitter.verifyConfig({})).to.be.not.a('null');
+    expect(Twitter.verifyConfig({name: 'twitter'})).to.be.not.a('null');
+    expect(Twitter.verifyConfig({name: 'twitter', user: 'test'})).to.be.not.a('null');
+    expect(Twitter.verifyConfig({name: 'twitter', consumer_key: 'test'})).to.be.not.a('null');
   });
 
 });

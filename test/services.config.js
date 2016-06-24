@@ -1,20 +1,33 @@
 "use strict";
 
-var assert = require('chai').assert;
+var expect = require('chai').expect;
 
 describe('services.config', function() {
-    describe('init', function() {
-        /*it('should have a service that is not undefined', function () {
-            var Config = require('../services/config');
-            var config = new Config();
-            //assert.equal(config.filePath, 'rivus.json' );
-        });*/
-/*
-        it('should handle a filePath', function () {
-            var Config = require('../services/config');
-            var config = new Config("services.config.json");
-            assert.equal(config.filePath, 'services.config.json' );
-        });
-*/
+  it('should have a service that is not undefined', function () {
+    var Config = require('../services/config');
+    expect(Config).to.be.exist;
+    var config = new Config();
+    expect(config).to.be.exist;
+  });
+
+  it('_source should be an object when config as object', function () {
+    var Config = require('../services/config');
+    var config = new Config({
+      "providers": []
     });
+    expect(config._source).to.equal('object');
+  });
+
+  it('_source should be an file+path when config as file', function () {
+    var Config = require('../services/config');
+    var config = new Config('./services.config.json');
+    expect(config._source).to.equal('file:./services.config.json');
+  });
+
+  it('_source should be an file+default_path when config is empty', function () {
+    var Config = require('../services/config');
+    var config = new Config();
+    expect(config._source).to.equal('file:rivus.json');
+  });
+
 });

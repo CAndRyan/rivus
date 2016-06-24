@@ -1,8 +1,7 @@
 'use strict';
 
-function FeedItem(feedItem, meta) {
+function FeedItem(feedItem) {
   this.setData(feedItem);
-  this.source.provider = meta.provider;
 }
 
 FeedItem.prototype.setData = function setData(obj) {

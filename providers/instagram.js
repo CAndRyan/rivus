@@ -3,32 +3,46 @@
 var Promise = require('es6-promise').Promise;
 var InstagramAPI = require('instagram-api');
 var moment = require('moment');
+var errors = require('../common/errors');
 
 function Instagram(config) {
   this.name = config.name;
-  this.instagramAPI = new InstagramAPI(config.access_token);
+  this.api = new InstagramAPI(config.access_token);
+  this.user = config.user;
+  this.id = feedId(config.name, config.user);
 }
 
-Instagram.prototype.get = function getInstagram(count, callback) {
+Instagram.prototype.get = function getInstagram(count) {
   var self = this;
   return new Promise(function executor(resolve, reject) {
-    self.instagramAPI.userSelfMedia()
+    self.api.userSelfMedia()
       .then(function success(response) {
-        if (callback) {
-          callback(null, prepare(response.data, count));
-        }
-        return resolve(prepare(response.data, count));
-      }, function error(err) {
-        if (callback) {
-          callback(err, null);
-        }
-        return reject(err);
+        return resolve(prepare.call(self, response.data, count));
+      })
+      .catch(function error(err) {
+        return reject(new errors.FeedRequestError(self.name, self.id, 'api' +
+          ' request failed', err));
       });
   });
 };
 
+Instagram.verifyConfig = function verifyInstagramConfig(config) {
+  if (config.user && !/^@/.exec(config.user)) {
+    return new Error('instagram provider: user name should start with a @');
+  }
+
+  if (!config.access_token) {
+    return new Error('instagram provider: access_token must be given');
+  }
+  if (!config.user) {
+    return new Error('instagram provider: user must be given');
+  }
+
+  return null;
+};
+
 function prepare(response, count) {
-  return response.slice(0, count).map(model);
+  return response.slice(0, count).map(model, this);
 }
 
 function model(item) {
@@ -43,7 +57,9 @@ function model(item) {
       }
     },
     source: {
-      feed: original
+      name: this.name,
+      feed: this.id,
+      extra: original
     }
   };
 }
@@ -56,6 +72,10 @@ function prefix(obj, pref) {
     }
   }
   return out;
+}
+
+function feedId(name, user) {
+  return name + ':' + user;
 }
 
 module.exports = Instagram;
