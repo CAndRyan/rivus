@@ -25,11 +25,11 @@ describe('providers.twitter', function() {
     expect(tw).to.be.exist;
   });
 
-  it('get method should return a promise', function () {
+  it('get method should return a object', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Twitter = require('../providers/twitter');
     var tw = new Twitter(CONFIG);
-    expect(tw.get(2)).to.be.a('promise');
+    expect(tw.get(2)).to.be.a('object');
   });
 
   it('callback in get method should get an array', function () {
@@ -69,7 +69,7 @@ describe('providers.twitter', function() {
   it('Validator should return a null with valid config', function () {
     var CONFIG = {
       "name": "twitter",
-      "user": "test",
+      "user": "@test",
       "consumer_key": "foo",
       "consumer_secret": "bar",
       "access_token_key": "baz",

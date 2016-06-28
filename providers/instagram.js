@@ -2,8 +2,8 @@
 
 var Promise = require('es6-promise').Promise;
 var InstagramAPI = require('instagram-api');
-var moment = require('moment');
 var errors = require('../common/errors');
+var feedUtils = require('../common/feedUtils');
 
 function Instagram(config) {
   this.name = config.name;
@@ -46,36 +46,30 @@ function prepare(response, count) {
 }
 
 function model(item) {
-  var original = prefix(item, 'in-');
+  var original = feedUtils.prefix(item, 'in-');
   return {
-    title: item.caption.text.substring(0, 20),
-    content: item.caption.text,
-    created_time: moment.unix(item.created_time).toString(),
+    title: item.caption && item.caption.text.substring(0, 20),
+    content: item.caption && item.caption.text,
+    created_time: date(item.created_time),
     images: {
       thumbnail: {
         url: item.images.thumbnail.url
       }
     },
+    extra: original,
     source: {
       name: this.name,
-      feed: this.id,
-      extra: original
+      feed: this.id
     }
   };
 }
 
-function prefix(obj, pref) {
-  var out = {};
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      out[pref + key] = obj[key];
-    }
-  }
-  return out;
-}
-
 function feedId(name, user) {
   return name + ':' + user;
+}
+
+function date(createdDate) {
+  return createdDate * 1000;
 }
 
 module.exports = Instagram;

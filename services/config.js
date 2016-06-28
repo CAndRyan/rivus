@@ -62,6 +62,29 @@ function cookCacheConfig(rawCacheConfig) {
   throw new errors.ConfigError('invalid cache configuration');
 }
 
+function cookEnv(rawConfig) {
+  for (var key in rawConfig) {
+    if (rawConfig.hasOwnProperty(key)) {
+      if (typeof rawConfig[key] === 'string' && rawConfig[key].startsWith('process.env')) {
+        try {
+          rawConfig[key] = getEnvVar(rawConfig[key]);
+        } catch (e) {
+          throw new errors.ConfigError('error reading environment variable: ' + rawConfig[key]);
+        }
+      }
+    }
+  }
+
+  function getEnvVar(envStr) {
+    return envStr.split('.').reduce(reduceEnv, global);
+  }
+
+  function reduceEnv(globalObj, k) {
+    return globalObj[k];
+  }
+
+  return rawConfig;
+}
 
 function cookProvidersConfig(rawProvidersConfig) {
   function cookProviderItemConfig(rawConfig) {
@@ -70,7 +93,7 @@ function cookProvidersConfig(rawProvidersConfig) {
       if (error) {
         throw new errors.ConfigError(error.message);
       }
-      return rawConfig;
+      return cookEnv(rawConfig);
     }
 
     throw new errors.ConfigError('invalid providers configuration: missing provider name');

@@ -1,9 +1,9 @@
 'use strict';
 var Promise = require('es6-promise').Promise;
 var feed = require('feed-read');
-var moment = require('moment');
 var errors = require('../common/errors');
 var url = require('url');
+var feedUtils = require('../common/feedUtils');
 
 function Rss(config) {
   this.name = config.name;
@@ -50,16 +50,16 @@ function prepare(response, count) {
 }
 
 function model(item) {
-  var original = prefix(item, 'rss-');
+  var original = feedUtils.prefix(item, 'rss-');
   return {
     title: item.title,
     content: item.content,
-    created_time: moment(item.published).toString(),
+    created_time: item.published,
     images: images(item.content),
+    extra: original,
     source: {
       name: this.name,
-      feed: this.id,
-      extra: original
+      feed: this.id
     }
   };
 }
@@ -77,15 +77,6 @@ function images(content) {
   return {};
 }
 
-function prefix(obj, pref) {
-  var out = {};
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      out[pref + key] = obj[key];
-    }
-  }
-  return out;
-}
 
 function feedId(name, id) {
   return name + ':' + id;

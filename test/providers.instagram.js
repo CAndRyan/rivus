@@ -22,11 +22,11 @@ describe('providers.instagram', function() {
     expect(ins).to.be.exist;
   });
 
-  it('get method should return a promise', function () {
+  it('get method should return a object', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Instagram = require('../providers/instagram');
     var ins = new Instagram(CONFIG);
-    expect(ins.get(5)).to.be.a('promise');
+    expect(ins.get(5)).to.be.a('object');
   });
 
   it('callback in get method should get an array', function () {

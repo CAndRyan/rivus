@@ -2,8 +2,8 @@
 
 var Promise = require('es6-promise').Promise;
 var TwitterApi = require('twitter');
-var moment = require('moment');
 var errors = require('../common/errors');
+var feedUtils = require('../common/feedUtils');
 
 function Twitter(config) {
   this.name = config.name;
@@ -38,6 +38,9 @@ Twitter.verifyConfig = function verifyTwitterConfig(config) {
   if (!config.user || !config.consumer_key || !config.consumer_secret || !config.access_token_key || !config.access_token_secret) {
     return new Error('twitter provider: all config properties must be given');
   }
+  if (config.user && !/^@/.exec(config.user)) {
+    return new Error('twitter provider: user name should start with a @');
+  }
 
   return null;
 };
@@ -47,16 +50,16 @@ function prepare(response, count) {
 }
 
 function model(item) {
-  var original = prefix(item, 'tw-');
+  var original = feedUtils.prefix(item, 'tw-');
   return {
     title: item.text.substring(0, 20),
     content: item.text,
-    created_time: moment(new Date(item.created_at)).toString(),
+    created_time: item.created_at,
     images: images(item.extended_entities),
+    extra: original,
     source: {
       name: this.name,
-      feed: this.id,
-      extra: original
+      feed: this.id
     }
   };
 }
@@ -71,16 +74,6 @@ function images(entities) {
       url: entities.media[0].media_url
     }
   };
-}
-
-function prefix(obj, pref) {
-  var out = {};
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      out[pref + key] = obj[key];
-    }
-  }
-  return out;
 }
 
 function feedId(name, user) {

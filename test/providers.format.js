@@ -10,10 +10,10 @@ var COMMON_FORMAT = {
   content: '',
   created_time: '',
   images: {},
+  extra: {},
   source: {
     name: '',
-    feed: '',
-    extra: {}
+    feed: ''
   }
 };
 
@@ -56,6 +56,7 @@ describe('providers.format', function() {
 
   it('Feed item should be equal to the common format', function () {
     var merge = require('../services/merge');
+    var moment = require('moment');
     var ins = instagramFn();
     var tw = twitterFn();
     var rss = rssFn();
@@ -70,12 +71,12 @@ describe('providers.format', function() {
           expect(item).to.have.all.keys(COMMON_FORMAT);
           expect(item.title).to.be.a('string');
           expect(item.content).to.be.a('string');
-          expect(item.created_time).to.be.a('string');
+          expect(item.created_time.isValid()).to.be.true;
           expect(item.images).to.be.an('object');
           expect(item.source).to.be.an('object');
           expect(item.source.name).to.be.a('string');
           expect(item.source.feed).to.be.a('string');
-          expect(item.source.extra).to.be.an('object');
+          expect(item.extra).to.be.an('object');
         });
       });
   });

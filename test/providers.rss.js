@@ -20,11 +20,11 @@ describe('providers.rss', function() {
     expect(rss).to.be.exist;
   });
 
-  it('get method should return a promise', function () {
+  it('get method should return a object', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Rss = require('../providers/rss');
     var rss = new Rss(CONFIG);
-    expect(rss.get(10)).to.be.a('promise');
+    expect(rss.get(10)).to.be.a('object');
   });
 
   it('callback in get method should get an array', function () {

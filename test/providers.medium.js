@@ -23,11 +23,11 @@ describe('providers.medium', function() {
       expect(md).to.be.exist;
     });
 
-    it('get method should return a promise', function () {
+    it('get method should return a object', function () {
       var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
       var Medium = require('../providers/medium');
       var md = new Medium(CONFIG);
-      expect(md.get(10)).to.be.a('promise');
+      expect(md.get(10)).to.be.a('object');
     });
 
     it('callback in get method should get an array', function () {
