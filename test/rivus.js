@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var nock = require('nock');
+var Promise = require('es6-promise').Promise;
 
 var HOST = 'http://www.example.org';
 var PATH = '/export/1';
@@ -19,10 +20,10 @@ describe('rivus', function() {
     expect(r.getFeed).to.be.exist;
   });
 
-  it('getFeed method should return a object', function () {
+  it('getFeed method should return a Promise', function () {
     var Rivus = require('../rivus');
     var r = new Rivus();
-    expect(r.getFeed(1)).to.be.a('object');
+    expect(r.getFeed(1)).to.be.an.instanceOf(Promise);
   });
 
 

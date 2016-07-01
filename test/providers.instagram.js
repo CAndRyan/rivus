@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var nock = require('nock');
+var Promise = require('es6-promise').Promise;
 
 var HOST = 'https://api.instagram.com';
 var PATH = '/v1/users/self/media/recent/?access_token=_CRDjNF8MEZoC9yq8xqbciPdp7jolx38FnP4i3PNRyQVXe3shtmqg3ZFJSQFCqakbKJCpY_HpG8dEOgSSkeWNBdXax8gA';
@@ -22,11 +23,11 @@ describe('providers.instagram', function() {
     expect(ins).to.be.exist;
   });
 
-  it('get method should return a object', function () {
+  it('get method should return a promise', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Instagram = require('../providers/instagram');
     var ins = new Instagram(CONFIG);
-    expect(ins.get(5)).to.be.a('object');
+    expect(ins.get(5)).to.be.an.instanceOf(Promise);
   });
 
   it('callback in get method should get an array', function () {

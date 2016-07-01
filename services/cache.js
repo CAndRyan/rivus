@@ -2,6 +2,7 @@
 
 var cacheManager = require('cache-manager');
 var Promise = require('es6-promise').Promise;
+var errors = require('../common/errors');
 
 
 function createCache(config) {
@@ -18,29 +19,38 @@ function createCache(config) {
   });
 }
 
-
 function Cache(config) {
   this._cache = createCache(config);
 }
 
-
-Cache.prototype.get = function getCached(itemKey, missHandler) {
-  return this._cache.then(function withCache(cache) {
-    if (!cache) {
-      return missHandler();
-    }
-
-    return new Promise(function tryGetFromCache(resolve, reject) {
-      cache.wrap(itemKey, missHandler, function onResult(err, item) {
-        if (err) {
-          reject(err);
-          return;
+Cache.prototype.get = function getCached(id) {
+  return this._cache.then(function getMemoryCache(cache) {
+    return new Promise(function tryGetCache(resolve, reject) {
+      cache.get(id, function cacheFn(err, result) {
+        if (err || !result) {
+          reject(err, result);
+          if (err) {
+            throw new errors.CacheError('Error get cache', id);
+          }
         }
-        resolve(item);
+        resolve(result);
       });
     });
   });
 };
 
+Cache.prototype.set = function setCached(id, result) {
+  return this._cache.then(function getMemoryCache(cache) {
+    return new Promise(function tryGetCache(resolve, reject) {
+      cache.set(id, result, function setMemoryCache(err) {
+        if (err) {
+          reject(err);
+          throw new errors.CacheError('Error set cache', id);
+        }
+        resolve();
+      });
+    });
+  });
+};
 
 module.exports = Cache;

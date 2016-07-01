@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var nock = require('nock');
+var Promise = require('es6-promise').Promise;
 
 var HOST = 'http://www.example.org';
 var PATH = '/export/1';
@@ -20,11 +21,11 @@ describe('providers.rss', function() {
     expect(rss).to.be.exist;
   });
 
-  it('get method should return a object', function () {
+  it('get method should return a Promise', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Rss = require('../providers/rss');
     var rss = new Rss(CONFIG);
-    expect(rss.get(10)).to.be.a('object');
+    expect(rss.get(10)).to.be.an.instanceOf(Promise);
   });
 
   it('callback in get method should get an array', function () {
@@ -75,6 +76,21 @@ describe('providers.rss', function() {
     expect(Rss.verifyConfig({})).to.be.not.a('null');
     expect(Rss.verifyConfig({name: 'rss'})).to.be.not.a('null');
     expect(Rss.verifyConfig({name: 'rss', feed_url: 'test'})).to.be.not.a('null');
+  });
+  
+  it('Images object sholud be with an url', function () {
+    var RESPONSE = __dirname + '/replies/rss_images.rss';
+    var mock = nock(HOST).get('/export/image').replyWithFile(200, RESPONSE);
+    var Rss = require('../providers/rss');
+    var rss = new Rss({
+      name: 'rss',
+      feed_url: 'http://www.example.org/export/image'
+    });
+    return rss.get(10).then(function (response) {
+      response.forEach(function (feed) {
+        expect(feed.images.thumbnail.url).to.be.a('string');
+      });
+    });
   });
 
 

@@ -3,6 +3,7 @@
 var Promise = require('es6-promise').Promise;
 var fs = require('fs');
 var errors = require('../common/errors');
+var redisStore = require('cache-manager-redis');
 
 var Provider = require('./provider');
 
@@ -30,11 +31,15 @@ function cookConfigItem(target, defaults) {
 
   for (var key in defaults) {
     if (Object.prototype.hasOwnProperty.call(defaults, key)) {
-      configItem[key] = target[key] || defaults[key];
+      configItem[key] = target[key] || (target.settings && target.settings[key]) || defaults[key];
     }
   }
 
-  return target;
+  if (configItem.store === 'redis') {
+    configItem.store = redisStore;
+  }
+
+  return configItem;
 }
 
 
@@ -65,7 +70,7 @@ function cookCacheConfig(rawCacheConfig) {
 function cookEnv(rawConfig) {
   for (var key in rawConfig) {
     if (rawConfig.hasOwnProperty(key)) {
-      if (typeof rawConfig[key] === 'string' && rawConfig[key].startsWith('process.env')) {
+      if (typeof rawConfig[key] === 'string' && rawConfig[key].indexOf('process.env') === 0) {
         try {
           rawConfig[key] = getEnvVar(rawConfig[key]);
         } catch (e) {

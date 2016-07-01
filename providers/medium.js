@@ -5,12 +5,17 @@ var url = require('url');
 var Rss = require('./rss');
 
 function MediumProvider(providerConfig) {
-  this._rss = new Rss(createRssConfig(providerConfig));
+  Rss.call(this, createRssConfig(providerConfig));
 }
 
-MediumProvider.prototype.get = function getMediumFeed() {
-  return this._rss.get.apply(this._rss, arguments);
-};
+MediumProvider.prototype = Object.create(Rss.prototype, {
+  get: {
+    value: function getValue() {
+      return Rss.prototype.get.apply(this, arguments);
+    }
+  }
+});
+MediumProvider.prototype.constructor = MediumProvider;
 
 MediumProvider.verifyConfig = function verifyMediumConfig(config) {
   if (config.user && !/^@/.exec(config.user)) {

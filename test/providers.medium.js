@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var nock = require('nock');
+var Promise = require('es6-promise').Promise;
 
 var HOST = 'https://medium.com';
 
@@ -23,11 +24,11 @@ describe('providers.medium', function() {
       expect(md).to.be.exist;
     });
 
-    it('get method should return a object', function () {
+    it('get method should return a promise', function () {
       var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
       var Medium = require('../providers/medium');
       var md = new Medium(CONFIG);
-      expect(md.get(10)).to.be.a('object');
+      expect(md.get(10)).to.be.an.instanceOf(Promise);
     });
 
     it('callback in get method should get an array', function () {

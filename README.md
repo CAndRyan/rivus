@@ -10,6 +10,9 @@ Social aggregation into a single feed (example: jaredwray.com)
 * Many Providers
 
 # Install
+
+Requires Node.js v0.10 or higher.
+
 **Manually Download**
 
 Installing Rivus is simple. Just [download](https://riv.us/download/latest/rivus_package.zip) the zip file.
@@ -28,8 +31,8 @@ $ npm install riv-us
         "settings": {
         }
     },
-    "caching": {
-        "type": "memory",
+    "cache": {
+        "store": "memory",
         "settings": {
             "ttl": 3600
         }
@@ -114,6 +117,13 @@ By default the following is enabled:
     "user_id": "userid"
 }
 ```
+**Date display**: Moment.js allows you to easily manipulate created time.
+```
+rivus.get(function (err, result) {
+    result[0].created_time.format('dddd'); // Wednesday
+});
+
+```
 
 # Standard Feed Result
 The standard feed result will look like the following:
@@ -147,4 +157,23 @@ Here is a list of providers currently supported:
 * RSS
 * Medium
 * Facebook
+
+# Tests
+Tests for Rivus can be run using the command:
+```
+gulp test
+```
+
+# TODO
+* More providers
+* Tests
+
+# Authors
+[jaredwray.com](http://jaredwray.com)
+
+# Licence
+MIT (?)
+
+# Issues
+Issues? Feature Requests? reported an [issue](https://github.com/jaredwray/gt6-rivus/issues).
 

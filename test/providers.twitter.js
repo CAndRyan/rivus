@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var nock = require('nock');
+var Promise = require('es6-promise').Promise;
 
 var HOST = 'https://api.twitter.com';
 var PATH = '/1.1/statuses/user_timeline.json?screen_name=user&count=2';
@@ -25,11 +26,11 @@ describe('providers.twitter', function() {
     expect(tw).to.be.exist;
   });
 
-  it('get method should return a object', function () {
+  it('get method should return a promise', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Twitter = require('../providers/twitter');
     var tw = new Twitter(CONFIG);
-    expect(tw.get(2)).to.be.a('object');
+    expect(tw.get(2)).to.be.an.instanceOf(Promise);
   });
 
   it('callback in get method should get an array', function () {

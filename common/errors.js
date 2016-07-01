@@ -6,6 +6,14 @@ function ConfigError(message, configSource) {
 ConfigError.prototype = new Error();
 ConfigError.prototype.constructor = ConfigError;
 
+function CacheError(message, cacheId) {
+  this.name = 'CacheError';
+  this.message = message;
+  this.source = cacheId;
+}
+CacheError.prototype = new Error();
+CacheError.prototype.constructor = CacheError;
+
 
 function FeedRequestError(providerName, feedId, message, extra) {
   this.name = 'FeedRequestError';
@@ -22,5 +30,6 @@ FeedRequestError.prototype.constructor = FeedRequestError;
 
 module.exports = {
   ConfigError: ConfigError,
-  FeedRequestError: FeedRequestError
+  FeedRequestError: FeedRequestError,
+  CacheError: CacheError
 };

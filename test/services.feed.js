@@ -1,9 +1,24 @@
-var assert = require('chai').assert;
-describe('Array', function() {
-  describe('#indexOf()', function () {
-    it('should return -1 when the value is not present', function () {
-      assert.equal(-1, [1,2,3].indexOf(5));
-      assert.equal(-1, [1,2,3].indexOf(0));
-    });
+"use strict";
+
+var expect = require('chai').expect;
+var Promise = require('es6-promise').Promise;
+
+describe('services.feed', function() {
+  var Config = require('../services/config');
+  var config = new Config({
+    "providers": []
+  });
+
+  it('should have a service that is not undefined', function () {
+    var Feed = require('../services/feed');
+    expect(Feed).to.be.exist;
+    var feed = new Feed(config);
+    expect(feed).to.be.exist;
+  });
+
+  it('get method should return a Promise', function () {
+    var Feed = require('../services/feed');
+    var feed = new Feed(config);
+    expect(feed.get(10)).to.be.an.instanceOf(Promise);
   });
 });
