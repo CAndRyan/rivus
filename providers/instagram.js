@@ -54,6 +54,9 @@ function model(item) {
     images: {
       thumbnail: {
         url: item.images.thumbnail.url
+      },
+      content: {
+        url: item.images.standard_resolution.url
       }
     },
     extra: original,

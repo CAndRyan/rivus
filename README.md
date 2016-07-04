@@ -34,7 +34,8 @@ $ npm install riv-us
     "cache": {
         "store": "memory",
         "settings": {
-            "ttl": 3600
+            "ttl": 3600, // seconds
+            "max": 25
         }
     },
     "providers": [
@@ -81,27 +82,27 @@ $ npm install riv-us
     var Rivus = require("riv-us");
 
     var rivus = new Rivus(__dirname + "../path/to/config"); // the config should list the providers and their settings
-    
+
     // or with object
     var rivus = new Rivus({...});
-    
+
     // using promises
     rivus.get().then(function(result) {
         console.log(result);
     }).catch(function(error) {
         console.log(error);
     });
-    
+
     // or using callback
     rivus.get(function (err, result) {
         console.log(err, result);
     });
-    
+
     // or using callback and count
     rivus.get(10, function (err, result) {
         console.log(err, result);
     });
-    
+
 ```
 
 By default the following is enabled:
@@ -124,6 +125,36 @@ rivus.get(function (err, result) {
 });
 
 ```
+**Redis cache**: Example of config caching using Redis.
+```
+"cache": {
+    "store": "redis",
+    "settings": {
+        "ttl": 3600,
+        "host": "localhost",
+        "port": 6379,
+        "auth_pass": "",
+        "db": 0,
+    }
+}
+
+```
+**Multi cache**: Example of config using Multi cache.
+```
+"cache": [
+    {
+      "store": "memory",
+      "settings": {
+        "ttl": 3600
+      }
+    },
+    {
+      "store": "redis",
+      "ttl": 3600
+    }
+]
+
+```
 
 # Standard Feed Result
 The standard feed result will look like the following:
@@ -133,7 +164,7 @@ The standard feed result will look like the following:
   content: '',
   created_time: {}, // Moment object - http://momentjs.com/
   images: {
-    thumbnail: {url: ''}, 
+    thumbnail: {url: ''},
     content: {url: ''} // optional
   },
   extra: {}, // original feed
@@ -175,5 +206,4 @@ gulp test
 MIT (?)
 
 # Issues
-Issues? Feature Requests? reported an [issue](https://github.com/jaredwray/gt6-rivus/issues).
-
+Issues? Feature Requests? reported an [issue](https://github.com/jaredwray/rivus/issues).

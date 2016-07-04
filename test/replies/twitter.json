@@ -6,6 +6,9 @@
     "created_at": "Wed Aug 29 17:12:58 +0000 2012",
     "id_str": "240859602684612608",
     "entities": {
+      "media": [
+        {"media_url": "http://example.org/img.jpg"}
+      ],
       "urls": [
         {
           "expanded_url": "https://dev.twitter.com/blog/twitter-certified-products",

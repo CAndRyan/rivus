@@ -33,7 +33,7 @@ Provider.exists = function providerExists(providerName) {
 
 Provider.verifyConfig = function verifyProviderConfig(config) {
   if (!Provider.exists(config.name)) {
-    return new Error('provider module `' + config.name + '` not installed');
+    throw new Error('provider module `' + config.name + '` not installed');
   }
 
   var ProviderClass = requireProvider(config.name);

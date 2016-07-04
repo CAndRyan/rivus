@@ -8,6 +8,11 @@ describe('services.provider', function() {
     expect(Provider).to.be.exist;
   });
 
+  it('providers should be instantiated by calling Provider.create', function () {
+    var Provider = require('../services/provider');
+    expect(Provider).to.throw(Error);
+  });
+
   it('should have a create method', function () {
     var provider = require('../services/provider');
     expect(provider.create).to.be.exist;
@@ -57,5 +62,15 @@ describe('services.provider', function() {
       "name": "rss"
     };
     expect(provider.verifyConfig(config)).to.not.be.a('null');
+  });
+
+  it('verifyConfig method should throw Error when provider not exist', function () {
+    var provider = require('../services/provider');
+    var config = {
+      "name": "foo"
+    };
+    expect(function () {
+      provider.verifyConfig(config);
+    }).to.throw(Error);
   });
 });

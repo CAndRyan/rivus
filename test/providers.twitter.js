@@ -88,6 +88,7 @@ describe('providers.twitter', function() {
     expect(Twitter.verifyConfig({name: 'twitter'})).to.be.not.a('null');
     expect(Twitter.verifyConfig({name: 'twitter', user: 'test'})).to.be.not.a('null');
     expect(Twitter.verifyConfig({name: 'twitter', consumer_key: 'test'})).to.be.not.a('null');
+    expect(Twitter.verifyConfig({name: 'twitter', consumer_key: 'test', consumer_secret: '1', user: 'test', access_token_key: '2', access_token_secret: '3'})).to.be.not.a('null');
   });
 
 });
