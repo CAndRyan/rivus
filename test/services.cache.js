@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var Promise = require('es6-promise').Promise;
+var rewire = require('rewire');
 
 describe('services.cache', function() {
   describe('services.cache.single', function() {
@@ -55,77 +56,61 @@ describe('services.cache', function() {
       expect(cache.set(null, null)).to.be.an.instanceOf(Promise);
     });
 
-    it('set method should to cache data', function () {
-      var Cache = require('../services/cache');
-      var cache = new Cache(config);
-      cache.set('foo', 'bar').then(function () {
-        cache.get('foo').then(function (results) {
-          expect(results).to.equal('bar');
-        });
-      });
-    });
-
-    it('set method should to cache data to redis', function () {
-      var Cache = require('../services/cache');
+    /*it('caching method in the cacheManager should get config', function () {
+      var cacheMock = {
+        caching: function (cfg) {
+          expect(cfg).to.have.all.keys(config_redis);
+        }
+      };
+      var Cache = rewire('../services/cache');
+      Cache.__set__("cacheManager", cacheMock);
       var cache = new Cache(config_redis);
-      cache.set('foo', 'bar').then(function () {
-        cache.get('foo').then(function (results) {
-          expect(results).to.equal('bar');
-        });
-      });
-    });
+    });*/
 
-    it('get should return empty results when an invalid key', function () {
-      var Cache = require('../services/cache');
-      var cache = new Cache(config);
-      cache.get('foo567')
-        .catch(function (err, results) {
-          expect(err).to.be.a('null');
-          expect(results).to.be.a('undefined');
-        });
-    });
+    it('get method should call get method in cache-manager with redis' +
+      ' storage', function () {
+      var cacheMock = {
+        caching: function (cfg) {
+          return {
+            'set': function (key, val, cb) {
+              expect(key).to.eql('foo');
+              cb(null, key);
+            }
+          };
+        }
+      };
 
-    it('cache should to expire in memory after 1 second', function (done) {
-      var Cache = require('../services/cache');
-      var cache = new Cache(config);
-      return cache.set('baz', 'bar').then(function () {
-        return new Promise(function executor(resolve, reject) {
-          setTimeout(function () {
-            cache.get('baz')
-              .catch(function (err, results) {
-                expect(err).to.be.a('null');
-                expect(results).to.be.a('undefined');
-                resolve();
-                done();
-              });
-          }, 1200);
-        });
-
-      });
-    });
-
-    it('cache should to expire in redis after 1 second', function (done) {
-      var Cache = require('../services/cache');
+      var Cache = rewire('../services/cache');
+      Cache.__set__("cacheManager", cacheMock);
       var cache = new Cache(config_redis);
-      return cache.set('baz', 'bar').then(function () {
-        return new Promise(function executor(resolve, reject) {
-          setTimeout(function () {
-            cache.get('baz')
-              .catch(function (err, results) {
-                expect(err).to.be.a('null');
-                expect(results).to.be.a('undefined');
-                resolve();
-                done();
-              });
-          }, 1200);
-        });
-      });
+      return cache.set('foo', 'bar');
     });
+
+    it('get method should call get method in cache-manager with memory' +
+      ' storage', function () {
+      var cacheMock = {
+        caching: function (cfg) {
+          return {
+            'set': function (key, val, cb) {
+              expect(key).to.eql('foo');
+              cb(null, key);
+            }
+          };
+        }
+      };
+
+      var Cache = rewire('../services/cache');
+      Cache.__set__("cacheManager", cacheMock);
+      var cache = new Cache(config);
+      return cache.set('foo', 'bar');
+    });
+
+
   });
 
   describe('services.cache.multi', function() {
     var Config = require('../services/config');
-    var config = new Config({
+    var configObj = {
       "cache": [
         {
           "store": "memory",
@@ -144,26 +129,20 @@ describe('services.cache', function() {
           "feed_url": "https://nodejs.org/en/feed/blog.xml"
         }
       ]
+    };
+    var config = new Config(configObj);
+
+    it('multiCaching method in the cacheManager should get multiple config', function () {
+      var cacheMock = {
+        multiCaching: function (cfg) {
+          expect(cfg).to.be.a('array');
+          expect(cfg).to.have.lengthOf(2);
+        }
+      };
+      var Cache = rewire('../services/cache');
+      Cache.__set__("cacheManager", cacheMock);
+      var cache = new Cache(config);
     });
 
-    it('set method should to cache data', function () {
-      var Cache = require('../services/cache');
-      var cache = new Cache(config);
-      cache.set('alpha', 'bar').then(function () {
-        cache.get('alpha').then(function (results) {
-          expect(results).to.equal('bar');
-        });
-      });
-    });
-
-    it('get should return empty results when an invalid key', function () {
-      var Cache = require('../services/cache');
-      var cache = new Cache(config);
-      cache.get('foo567')
-        .catch(function (err, results) {
-          expect(err).to.be.a('null');
-          expect(results).to.be.a('undefined');
-        });
-    });
   });
 });
