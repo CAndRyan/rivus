@@ -48,6 +48,7 @@ function prepare(response, count) {
 function model(item) {
   var original = feedUtils.prefix(item, 'in-');
   return {
+    id: 'inst:' + item.id,
     title: item.caption && item.caption.text.substring(0, 20),
     content: item.caption && item.caption.text,
     created_time: date(item.created_time),
@@ -59,6 +60,7 @@ function model(item) {
         url: item.images.standard_resolution.url
       }
     },
+    link: item.link,
     extra: original,
     source: {
       name: this.name,

@@ -13,10 +13,6 @@ Social aggregation into a single feed (example: jaredwray.com)
 
 Requires Node.js v0.10 or higher.
 
-**Manually Download**
-
-Installing Rivus is simple. Just [download](https://riv.us/download/latest/rivus_package.zip) the zip file.
-
 **Using NPM**
 ```
 $ npm install riv-us
@@ -24,6 +20,14 @@ $ npm install riv-us
 
 # How To Use Rivus
 **Step 1**: Set your the provider configuration file up correctly to support what providers you want to use and the settings / authentication needed.
+
+* Medium: Copy user name from URL https://medium.com/@sarahsolfails.
+Put this in the field 'user' in the configuration. To get publication's feed copy the name of publication https ://medium.com/the-story and put it in the field "publication". If feed situated at the custom domain, copy only domain and put it in the field "publication_with_custom_domain".
+* RSS: List the URL of the feed you are interested in the field "feed_url".
+* Twitter: Create an application at https://apps.twitter.com/app/new. Go into the details of the generated application and find: Consumer Key (API Key), Consumer Secret (API Secret), Access Token, Access Token Secret. Copy these values and your account name @username in the appropriate configuration fields.
+* Facebook: Create an application at https://developers.facebook.com/apps Go into the details of the generated application and find App ID and App Secret . Find out your User ID there are many ways to do it. Copy the received information in the appropriate configuration fields.
+* Instagram: Copy the name of your account @username and your Access Token in the appropriate configuration fields.
+
 ```
 {
     "dataStore": {
@@ -167,6 +171,7 @@ The standard feed result will look like the following:
     thumbnail: {url: ''},
     content: {url: ''} // optional
   },
+  link: "",
   extra: {}, // original feed
   source: {
     name: '', // provider name
@@ -200,10 +205,10 @@ gulp test
 * Tests
 
 # Authors
-[jaredwray.com](http://jaredwray.com)
+Jared Wray [jaredwray.com](http://jaredwray.com)
 
 # Licence
-MIT (?)
+Apache 2.0
 
 # Issues
 Issues? Feature Requests? reported an [issue](https://github.com/jaredwray/rivus/issues).

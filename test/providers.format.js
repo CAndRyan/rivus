@@ -6,10 +6,12 @@ var Promise = require('es6-promise').Promise;
 var PROVIDERS = [{name: 'instagram'}, {name: 'twitter'}, {name: 'rss'}, {name: 'medium'}];
 
 var COMMON_FORMAT = {
+  id: '',
   title: '',
   content: '',
   created_time: '',
   images: {},
+  link: '',
   extra: {},
   source: {
     name: '',
@@ -18,12 +20,12 @@ var COMMON_FORMAT = {
 };
 
 describe('providers.format', function() {
-  it('should have a Merge that is not undefined', function () {
+  it('should have a Merge that is not undefined', function() {
     var Merge = require('../services/merge');
     expect(Merge).to.be.exist;
   });
 
-  it('Merge should be return an array', function () {
+  it('Merge should be return an array', function() {
     var merge = require('../services/merge');
     var ins = instagramFn();
     var tw = twitterFn();
@@ -34,11 +36,11 @@ describe('providers.format', function() {
       return provider.get(2);
     });
     return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
-      .then(function (response) {
+      .then(function(response) {
         expect(response).to.be.a('array');
       });
   });
-  it('Merge should be return an array length 8', function () {
+  it('Merge should be return an array length 8', function() {
     var merge = require('../services/merge');
     var ins = instagramFn();
     var tw = twitterFn();
@@ -49,27 +51,53 @@ describe('providers.format', function() {
       return provider.get(2);
     });
     return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
-      .then(function (response) {
+      .then(function(response) {
         expect(response).to.have.lengthOf(8);
       });
   });
 
-  it('Feed item should be equal to the common format', function () {
+  it('Feed items should have common format', function() {
     var merge = require('../services/merge');
-    var moment = require('moment');
     var ins = instagramFn();
     var tw = twitterFn();
     var rss = rssFn();
     var md = mediumFn();
+    var fb = facebookFn();
 
-    var getPromises = [ins, tw, rss, md].map(function getProviderFeed(provider) {
+    var getPromises = [ins, tw, rss, md, fb].map(function getProviderFeed(provider) {
       return provider.get(2);
     });
+
     return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
-      .then(function (response) {
-        response.forEach(function (item) {
+      .then(function(response) {
+        response.forEach(function(item) {
           expect(item).to.have.all.keys(COMMON_FORMAT);
-          expect(item.title).to.be.a('string');
+
+          expect(item.id).to.be.a('string');
+          switch (item.source.name) {
+            case 'facebook':
+              expect(item.id.indexOf('fb:')).to.eql(0);
+              break;
+            case 'instagram':
+              expect(item.id.indexOf('inst:')).to.eql(0);
+              break;
+            case 'medium':
+              expect(item.id.indexOf('md:')).to.eql(0);
+              break;
+            case 'twitter':
+              expect(item.id.indexOf('twi:')).to.eql(0);
+              break;
+            case 'rss':
+              expect(item.id.indexOf('rss:http')).to.eql(0);
+              break;
+            default:
+              fail('unexpected item source name: ' + item.source.name);
+          }
+
+          if (item.title !== undefined) {
+            expect(item.title).to.be.a('string');
+          }
+
           expect(item.content).to.be.a('string');
           expect(item.created_time.isValid()).to.be.true;
           expect(item.images).to.be.an('object');
@@ -133,5 +161,26 @@ function mediumFn() {
   return new Medium({
     name: 'medium',
     user: '@davepell'
+  });
+}
+
+function facebookFn() {
+  nock('https://graph.facebook.com')
+    .get('/oauth/access_token')
+    .query({client_id: 'app_id', client_secret: 'app_secret', grant_type: 'client_credentials'})
+    .reply(200, function() {
+      return 'access_token=app_id|app_secret';
+    });
+
+  nock('https://graph.facebook.com', {reqheaders: {'access-token': 'app_id|app_secret'}})
+    .get('/12345/feed')
+    .query({fields: 'message,link,message_tags,name,picture,full_picture,type,created_time,source,story_tags'})
+    .replyWithFile(200, __dirname + '/replies/facebook.json');
+
+  var Facebook = require('../providers/facebook');
+  return new Facebook({
+    user_id: '12345',
+    app_id: 'app_id',
+    app_secret: 'app_secret'
   });
 }

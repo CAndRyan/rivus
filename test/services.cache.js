@@ -8,12 +8,11 @@ describe('services.cache', function() {
   describe('services.cache.single', function() {
 
     var Config = require('../services/config');
-    var config = new Config({
+    var configObj = {
       "cache": {
         "store": "memory",
-        "settings": {
-          "ttl": 1
-        }
+        "ttl": 1,
+        "max": 25
       },
       "providers": [
         {
@@ -21,7 +20,8 @@ describe('services.cache', function() {
           "feed_url": "https://nodejs.org/en/feed/blog.xml"
         }
       ]
-    });
+    };
+    var config = new Config(configObj);
 
     var config_redis = new Config({
       "cache": {
@@ -56,19 +56,22 @@ describe('services.cache', function() {
       expect(cache.set(null, null)).to.be.an.instanceOf(Promise);
     });
 
-    /*it('caching method in the cacheManager should get config', function () {
+    it('caching method in the cacheManager should get config', function () {
       var cacheMock = {
         caching: function (cfg) {
-          expect(cfg).to.have.all.keys(config_redis);
+          return cfg;
         }
       };
       var Cache = rewire('../services/cache');
       Cache.__set__("cacheManager", cacheMock);
-      var cache = new Cache(config_redis);
-    });*/
+      var cache = new Cache(config);
+      return cache._cache.then(function (cfg) {
+        expect(cfg).to.be.a('object');
+        expect(cfg).to.have.all.keys(configObj.cache);
+      });
+    });
 
-    it('get method should call get method in cache-manager with redis' +
-      ' storage', function () {
+    it('set method should call set method in cache-manager', function () {
       var cacheMock = {
         caching: function (cfg) {
           return {
@@ -86,12 +89,11 @@ describe('services.cache', function() {
       return cache.set('foo', 'bar');
     });
 
-    it('get method should call get method in cache-manager with memory' +
-      ' storage', function () {
+    it('get method should call get method in cache-manager', function () {
       var cacheMock = {
         caching: function (cfg) {
           return {
-            'set': function (key, val, cb) {
+            'get': function (key, cb) {
               expect(key).to.eql('foo');
               cb(null, key);
             }
@@ -102,7 +104,7 @@ describe('services.cache', function() {
       var Cache = rewire('../services/cache');
       Cache.__set__("cacheManager", cacheMock);
       var cache = new Cache(config);
-      return cache.set('foo', 'bar');
+      return cache.get('foo');
     });
 
 
@@ -135,13 +137,16 @@ describe('services.cache', function() {
     it('multiCaching method in the cacheManager should get multiple config', function () {
       var cacheMock = {
         multiCaching: function (cfg) {
-          expect(cfg).to.be.a('array');
-          expect(cfg).to.have.lengthOf(2);
+          return cfg;
         }
       };
       var Cache = rewire('../services/cache');
       Cache.__set__("cacheManager", cacheMock);
       var cache = new Cache(config);
+      return cache._cache.then(function (cfg) {
+        expect(cfg).to.be.a('array');
+        expect(cfg).to.have.lengthOf(2);
+      });
     });
 
   });

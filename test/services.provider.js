@@ -42,9 +42,9 @@ describe('services.provider', function() {
       "name": "rss",
       "feed_url": "http://example.org"
     };
+    var Rss = require('../providers/rss');
     var rssObject = provider.create(config);
-    expect(rssObject).to.be.a('object');
-    expect(rssObject.name).to.equal('rss');
+    expect(rssObject).to.be.an.instanceOf(Rss);
   });
 
   it('verifyConfig method should return a null', function () {

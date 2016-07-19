@@ -5,13 +5,24 @@ var url = require('url');
 var Rss = require('./rss');
 
 function MediumProvider(providerConfig) {
-  Rss.call(this, createRssConfig(providerConfig));
+  this._config = createRssConfig(providerConfig);
+  Rss.call(this, this._config);
 }
 
 MediumProvider.prototype = Object.create(Rss.prototype, {
   get: {
     value: function getValue() {
       return Rss.prototype.get.apply(this, arguments);
+    }
+  },
+  _feedId: {
+    value: function getFeedId() {
+      return this._config.id;
+    }
+  },
+  _itemId: {
+    value: function getItemId(item) {
+      return 'md:' + item.link;
     }
   }
 });
@@ -45,13 +56,13 @@ function createRssConfig(mediumConfig) {
     return {
       name: mediumConfig.name,
       feed_url: 'https://medium.com/feed/' + mediumConfig.user,
-      id: feedId(mediumConfig.name, 'user', mediumConfig.user)
+      id: composeFeedId(mediumConfig.name, 'user', mediumConfig.user)
     };
   } else if (mediumConfig.publication) {
     return {
       name: mediumConfig.name,
       feed_url: 'https://medium.com/feed/' + mediumConfig.publication,
-      id: feedId(mediumConfig.name, 'publication', mediumConfig.publication)
+      id: composeFeedId(mediumConfig.name, 'publication', mediumConfig.publication)
     };
   } else if (mediumConfig.publication_with_custom_domain) {
     var customDomainUrl = url.parse(mediumConfig.publication_with_custom_domain);
@@ -60,13 +71,13 @@ function createRssConfig(mediumConfig) {
     return {
       name: mediumConfig.name,
       feed_url: customDomainUrl.format(),
-      id: feedId(mediumConfig.name, 'publication_with_custom_domain', mediumConfig.publication_with_custom_domain)
+      id: composeFeedId(mediumConfig.name, 'publication_with_custom_domain', mediumConfig.publication_with_custom_domain)
     };
   }
   throw new Error('medium provider: config is invalid');
 }
 
-function feedId(name, type, id) {
+function composeFeedId(name, type, id) {
   return name + ':' + type + ':' + id;
 }
 

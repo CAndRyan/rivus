@@ -103,14 +103,16 @@ function cookFeedPost(feedId, post) {
   }
 
   return {
+    id: 'fb:' + post.id,
     title: post.name,
     content: post.message,
     created_time: moment(post.created_time).toString(),
     images: parseImages(),
+    link: post.link,
+    extra: {},
     source: {
       name: 'facebook',
-      feed: feedId,
-      extra: {}
+      feed: feedId
     }
   };
 }
@@ -173,8 +175,17 @@ FacebookAccessToken.prototype.invalidate = function invalidateFacebookAccessToke
 
 
 function Facebook(config) {
+  var userId = config.user_id;
+  var feedId = feedIdForUserId(userId);
+
   this._accessToken = new FacebookAccessToken(config.app_id, config.app_secret);
-  this._userId = config.user_id;
+  this._userId = userId;
+
+  Object.defineProperty(this, 'feedId', {
+    get: function getFeedId() {
+      return feedId;
+    }
+  });
 }
 
 Facebook.prototype.get = function getFacebookFeed(count) {
@@ -186,7 +197,7 @@ Facebook.prototype.get = function getFacebookFeed(count) {
 };
 
 Facebook.prototype._requestAccessToken = function requestFacebookAccessToken() {
-  return this._accessToken.request(feedIdForUserId(this._userId));
+  return this._accessToken.request(this.feedId);
 };
 
 Facebook.prototype._invalidateAccessToken = function invalidateFacebookAccessToken() {

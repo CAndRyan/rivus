@@ -6,22 +6,59 @@ var url = require('url');
 var feedUtils = require('../common/feedUtils');
 
 function Rss(config) {
-  this.name = config.name;
-  this.url = config.feed_url;
-  this.id = config.id || feedId(config.name, config.feed_url);
+  this._config = config;
+
+  Object.defineProperty(this, 'feedId', {
+    get: function getFeedId() {
+      return this._feedId();
+    }.bind(this)
+  });
 }
 
 Rss.prototype.get = function getRss(count) {
-  var self = this;
+  var feedUrl = this._config.feed_url;
+  var providerName = this._config.name;
+  var feedId = this.feedId;
+
   return new Promise(function executor(resolve, reject) {
-    feed(self.url, function feedCallback(err, response) {
+    feed(feedUrl, function feedCallback(err, response) {
       if (err) {
-        return reject(new errors.FeedRequestError(self.name, self.id, 'api' +
-            ' request failed', err));
+        return reject(new errors.FeedRequestError(
+          providerName, feedId, 'api request failed', err
+        ));
       }
-      return resolve(prepare.call(self, response, count));
-    });
-  });
+      return resolve(this._cookResponse(response, count));
+    }.bind(this));
+  }.bind(this));
+};
+
+Rss.prototype._feedId = function getFeedId() {
+  return 'rss:' + this._config.feed_url;
+};
+
+Rss.prototype._itemId = function getItemId(item) {
+  return 'rss:' + item.link;
+};
+
+Rss.prototype._cookResponse = function cookResponse(response, count) {
+  return response.slice(0, count).map(this._cookItem, this);
+};
+
+Rss.prototype._cookItem = function cookItem(item) {
+  var original = feedUtils.prefix(item, 'rss-');
+  return {
+    id: this._itemId(item),
+    title: item.title,
+    content: item.content,
+    created_time: item.published,
+    images: images(item.content),
+    link: item.link,
+    extra: original,
+    source: {
+      name: this._config.name,
+      feed: this._feedId(this._config)
+    }
+  };
 };
 
 Rss.verifyConfig = function verifyRssConfig(config) {
@@ -45,25 +82,6 @@ Rss.verifyConfig = function verifyRssConfig(config) {
   return null;
 };
 
-function prepare(response, count) {
-  return response.slice(0, count).map(model, this);
-}
-
-function model(item) {
-  var original = feedUtils.prefix(item, 'rss-');
-  return {
-    title: item.title,
-    content: item.content,
-    created_time: item.published,
-    images: images(item.content),
-    extra: original,
-    source: {
-      name: this.name,
-      feed: this.id
-    }
-  };
-}
-
 function images(content) {
   var rex = /src="([^"]*)"/i;
   var match = rex.exec(content);
@@ -75,11 +93,6 @@ function images(content) {
     };
   }
   return {};
-}
-
-
-function feedId(name, id) {
-  return name + ':' + id;
 }
 
 module.exports = Rss;

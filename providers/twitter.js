@@ -52,11 +52,13 @@ function prepare(response, count) {
 function model(item) {
   var original = feedUtils.prefix(item, 'tw-');
   return {
+    id: 'twi:' + item.id,
     title: item.text.substring(0, 20),
     content: item.text,
     created_time: item.created_at,
     images: images(item.extended_entities),
     extra: original,
+    link: 'https://twitter.com/' + item.user.screen_name + '/status/' + item.id_str,
     source: {
       name: this.name,
       feed: this.id

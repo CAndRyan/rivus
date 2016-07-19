@@ -22,6 +22,12 @@
       "publication_with_custom_domain": "http://www.example.org"
     },
     {
+      "name": "facebook",
+      "user_id": "12345",
+      "app_id": "app_id",
+      "app_secret": "app_secret"
+    },
+    {
       "name": "twitter",
       "user": "@user",
       "consumer_key": "gjQ0Pe2v2fweqwzPYuKVjKzDN",
