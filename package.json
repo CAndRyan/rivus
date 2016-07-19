@@ -1,6 +1,6 @@
 {
   "name": "riv-us",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Social aggregator for your feeds",
   "main": "rivus.js",
   "dependencies": {
