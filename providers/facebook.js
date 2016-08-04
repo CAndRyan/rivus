@@ -92,11 +92,11 @@ function cookFeedPost(feedId, post) {
     var images = {};
 
     if (post.picture && post.picture.length) {
-      images.thumbnail = {url: post.picture};
+      images.thumbnail = { url: post.picture };
     }
 
     if (post.full_picture && post.full_picture.length) {
-      images.content = {url: post.full_picture};
+      images.content = { url: post.full_picture };
     }
 
     return images;
@@ -117,7 +117,7 @@ function cookFeedPost(feedId, post) {
   };
 }
 
-function loadUserFeed(userId, accessToken, count, results, continuationUrl) {
+function loadUserFeed(userId, accessToken, continuationUrl) {
   var feedId = feedIdForUserId(userId);
 
   var endpoint;
@@ -132,12 +132,10 @@ function loadUserFeed(userId, accessToken, count, results, continuationUrl) {
 
   return graphApiRequest(endpoint, feedId, accessToken)
     .then(function processResponse(response) {
-      var newResults = results.concat(response.data.map(cookFeedPost.bind(null, feedId)));
-      var nextPageUrl = (response.paging || {}).next;
-      if (!!count && newResults.length < count) {
-        return loadUserFeed(userId, accessToken, count, newResults, nextPageUrl);
-      }
-      return newResults;
+      return {
+        posts: response.data.map(cookFeedPost.bind(null, feedId)),
+        nextPageToken: (response.paging || {}).next
+      };
     });
 }
 
@@ -189,10 +187,16 @@ function Facebook(config) {
 }
 
 Facebook.prototype.get = function getFacebookFeed(count) {
+  return this.getPage(count).then(function returnPosts(data) {
+    return data.posts;
+  });
+};
+
+Facebook.prototype.getPage = function getWithPage(count, pageToken) {
   var userId = this._userId;
 
   return this._requestAccessToken().then(function withAccessToken(accessToken) {
-    return loadUserFeed(userId, accessToken, count, []);
+    return loadUserFeed(userId, accessToken, pageToken);
   });
 };
 

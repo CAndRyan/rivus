@@ -41,7 +41,7 @@ Provider.verifyConfig = function verifyProviderConfig(config) {
   if (ProviderClass.verifyConfig) {
     return ProviderClass.verifyConfig(config);
   }
-  
+
   return null;
 };
 

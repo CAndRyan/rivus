@@ -47,5 +47,16 @@ describe('providers.facebook', function() {
     var Facebook = require('../providers/facebook');
     expect(Facebook).to.exist;
   });
+
+  it('should have a proper feed id', function() {
+    var facebook = new (require('../providers/facebook'))({
+      name: 'facebook',
+      user_id: '12345',
+      app_id: 'app_id',
+      app_secret: 'app_secret'
+    });
+
+    expect(facebook.feedId).to.eql('facebook:user:12345');
+  });
 });
 

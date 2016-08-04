@@ -42,16 +42,6 @@ describe('providers.twitter', function() {
     });
   });
 
-  it('response array should be 3 length', function () {
-    var PATH = '/1.1/statuses/user_timeline.json?screen_name=user&count=1';
-    var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
-    var Twitter = require('../providers/twitter');
-    var tw = new Twitter(CONFIG);
-    return tw.get(1).then(function (response) {
-      expect(response).to.have.lengthOf(1);
-    });
-  });
-
   it('Twitter item should be an object', function () {
     var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
     var Twitter = require('../providers/twitter');

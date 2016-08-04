@@ -6,30 +6,56 @@ var errors = require('../common/errors');
 var feedUtils = require('../common/feedUtils');
 
 function Twitter(config) {
+  var currentFeedId = feedId(config.name, config.user);
+
   this.name = config.name;
   this.user = config.user;
-  this.id = feedId(config.name, config.user);
+  this.id = currentFeedId;
+
   this.api = new TwitterApi({
     consumer_key: config.consumer_key,
     consumer_secret: config.consumer_secret,
     access_token_key: config.access_token_key,
     access_token_secret: config.access_token_secret
   });
+
+  Object.defineProperty(this, 'feedId', {
+    get: function getFeedId() {
+      return currentFeedId;
+    }
+  });
 }
 
 Twitter.prototype.get = function twitterGet(count) {
-  var self = this;
+  return this.getPage(count).then(function returnPosts(data) {
+    return data.posts;
+  });
+};
+
+Twitter.prototype.getPage = function getPage(count, pageToken) {
+  var currentFeedId = this.feedId;
+
+  var twitter = this.api;
   var params = {
     screen_name: this.user, // the user id passed in as part of the route
     count: count
   };
+
+  if (pageToken) {
+    params.max_id = pageToken;
+  }
+
   return new Promise(function executor(resolve, reject) {
-    self.api.get('statuses/user_timeline', params, function success(err, tweets, response) {
+    twitter.get('statuses/user_timeline', params, function success(err, tweets) {
       if (err) {
-        return reject(new errors.FeedRequestError(self.name, self.id, 'api' +
-            ' request failed', err));
+        return reject(new errors.FeedRequestError('twitter', currentFeedId, 'api request failed', err));
       }
-      return resolve(prepare.call(self, tweets, count));
+
+      var items = tweets.map(model.bind(null, currentFeedId));
+      return resolve({
+        posts: items,
+        nextPageToken: items.length ? items[items.length - 1].id : null
+      });
     });
   });
 };
@@ -45,11 +71,7 @@ Twitter.verifyConfig = function verifyTwitterConfig(config) {
   return null;
 };
 
-function prepare(response, count) {
-  return response.slice(0, count).map(model, this);
-}
-
-function model(item) {
+function model(currentFeedId, item) {
   var original = feedUtils.prefix(item, 'tw-');
   return {
     id: 'twi:' + item.id,
@@ -60,8 +82,8 @@ function model(item) {
     extra: original,
     link: 'https://twitter.com/' + item.user.screen_name + '/status/' + item.id_str,
     source: {
-      name: this.name,
-      feed: this.id
+      name: 'twitter',
+      feed: currentFeedId
     }
   };
 }

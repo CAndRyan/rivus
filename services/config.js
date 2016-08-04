@@ -3,7 +3,7 @@
 var Promise = require('es6-promise').Promise;
 var fs = require('fs');
 var errors = require('../common/errors');
-var redisStore = require('cache-manager-redis');
+var redisCache = require('cache-manager-redis');
 
 var Provider = require('./provider');
 
@@ -36,7 +36,7 @@ function cookConfigItem(target, defaults) {
   }
 
   if (configItem.store === 'redis') {
-    configItem.store = redisStore;
+    configItem.store = redisCache;
   }
 
   return configItem;
@@ -111,10 +111,42 @@ function cookProvidersConfig(rawProvidersConfig) {
   throw new errors.ConfigError('invalid providers configuration');
 }
 
+function cookRedisDataStoreConfig(rawConfig) {
+  if (typeof rawConfig.path === 'string') {
+    return {type: 'redis', path: rawConfig.socket};
+  } else if (typeof rawConfig.url === 'string') {
+    return {type: 'redis', url: rawConfig.socket};
+  }
+
+  var params = {type: 'redis'};
+
+  if (typeof rawConfig.host === 'string') {
+    params.host = rawConfig.host;
+  }
+
+  if (!!Number(rawConfig.port)) {
+    params.port = Number(rawConfig.port);
+  }
+
+  if (rawConfig.password) {
+    params.password = String(rawConfig.password);
+  }
+
+  return params;
+}
+
+function cookDataStoreConfig(rawDataStoreConfig) {
+  if (rawDataStoreConfig && rawDataStoreConfig.redis) {
+    return cookRedisDataStoreConfig(rawDataStoreConfig.redis);
+  }
+  return {type: null};
+}
+
 
 function cookConfig(rawConfig) {
   return {
     providers: cookProvidersConfig(rawConfig.providers),
+    dataStore: cookDataStoreConfig(rawConfig.store),
     cache: cookCacheConfig(rawConfig.cache)
   };
 }

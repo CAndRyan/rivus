@@ -24,13 +24,12 @@ describe('services.merge', function () {
   it('should return an array', function () {
     var merge = require('../services/merge');
     var feeds = [[COMMON_FORMAT], [COMMON_FORMAT]];
-    expect(merge({}, feeds)).to.be.a('array');
+    expect(merge(feeds)).to.be.a('array');
   });
 
   it('response array should be 2 length', function () {
     var merge = require('../services/merge');
     var feeds = [[COMMON_FORMAT], [COMMON_FORMAT]];
-    expect(merge({}, feeds)).to.have.lengthOf(2);
+    expect(merge(feeds)).to.have.lengthOf(2);
   });
-
 });

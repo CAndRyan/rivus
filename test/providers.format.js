@@ -35,24 +35,9 @@ describe('providers.format', function() {
     var getPromises = [ins, tw, rss, md].map(function getProviderFeed(provider) {
       return provider.get(2);
     });
-    return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
+    return Promise.all(getPromises).then(merge)
       .then(function(response) {
         expect(response).to.be.a('array');
-      });
-  });
-  it('Merge should be return an array length 8', function() {
-    var merge = require('../services/merge');
-    var ins = instagramFn();
-    var tw = twitterFn();
-    var rss = rssFn();
-    var md = mediumFn();
-
-    var getPromises = [ins, tw, rss, md].map(function getProviderFeed(provider) {
-      return provider.get(2);
-    });
-    return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
-      .then(function(response) {
-        expect(response).to.have.lengthOf(8);
       });
   });
 
@@ -68,7 +53,7 @@ describe('providers.format', function() {
       return provider.get(2);
     });
 
-    return Promise.all(getPromises).then(merge.bind(null, PROVIDERS))
+    return Promise.all(getPromises).then(merge)
       .then(function(response) {
         response.forEach(function(item) {
           expect(item).to.have.all.keys(COMMON_FORMAT);

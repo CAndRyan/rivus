@@ -32,6 +32,15 @@ Rss.prototype.get = function getRss(count) {
   }.bind(this));
 };
 
+Rss.prototype.getPage = function getPage(count) {
+  return this.get(count).then(function returnPage(posts) {
+    return {
+      posts: posts,
+      pageToken: null
+    };
+  });
+};
+
 Rss.prototype._feedId = function getFeedId() {
   return 'rss:' + this._config.feed_url;
 };

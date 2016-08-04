@@ -164,5 +164,22 @@ describe('providers.medium', function() {
     expect(Medium.verifyConfig({name: 'medium', publication_with_custom_domain: 'test'})).to.be.not.a('null');
   });
 
+  it('should have a proper feed id with a person feed', function() {
+    var CONFIG = {
+      "name": "medium",
+      "user": "@davepell"
+    };
+    var medium = new (require('../providers/medium'))(CONFIG);
+    expect(medium.feedId).to.eql('medium:user:@davepell');
+  });
+
+  it('should have a proper feed id with a domain feed', function() {
+    var CONFIG = {
+      name: 'medium',
+      publication_with_custom_domain: 'https://theringer.com'
+    };
+    var medium = new (require('../providers/medium'))(CONFIG);
+    expect(medium.feedId).to.eql('medium:publication_with_custom_domain:https://theringer.com');
+  });
 });
 

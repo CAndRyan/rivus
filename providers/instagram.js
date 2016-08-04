@@ -1,28 +1,58 @@
 'use strict';
 
+var https = require('https');
+var querystring = require('querystring');
 var Promise = require('es6-promise').Promise;
-var InstagramAPI = require('instagram-api');
 var errors = require('../common/errors');
 var feedUtils = require('../common/feedUtils');
 
 function Instagram(config) {
+  var currentFeedId = feedId(config.name, config.user);
+
   this.name = config.name;
-  this.api = new InstagramAPI(config.access_token);
-  this.user = config.user;
-  this.id = feedId(config.name, config.user);
+  this.id = currentFeedId;
+  this._accessToken = config.access_token;
+
+  Object.defineProperty(this, 'feedId', {
+    get: function getFeedId() {
+      return currentFeedId;
+    }
+  });
 }
 
 Instagram.prototype.get = function getInstagram(count) {
-  var self = this;
-  return new Promise(function executor(resolve, reject) {
-    self.api.userSelfMedia()
-      .then(function success(response) {
-        return resolve(prepare.call(self, response.data, count));
-      })
-      .catch(function error(err) {
-        return reject(new errors.FeedRequestError(self.name, self.id, 'api' +
-          ' request failed', err));
+  return this.getPage(count).then(function returnPosts(data) {
+    return data.posts;
+  });
+};
+
+Instagram.prototype.getPage = function getPage(count, pageToken) {
+  var currentFeedId = this.feedId;
+  var baseUrl = 'https://api.instagram.com/v1/users/self/media/recent/';
+  var params = { access_token: this._accessToken };
+  if (pageToken) {
+    params.next_max_id = pageToken;
+  }
+
+  var url = baseUrl + '?' + querystring.stringify(params);
+
+  return new Promise(function requestInstagramPage(resolve, reject) {
+    https.get(url, function readInstagramResponse(message) {
+      message.on('data', function processInstagramResponse(responseData) {
+        resolve(JSON.parse(responseData.toString('utf8')));
       });
+    })
+      .on('error', function processInstagramResponseError(error) {
+        reject(new errors.FeedRequestError('instagram', currentFeedId, 'network request failure', { error: error }));
+      });
+  }).then(function processInstagramResponse(response) {
+    if (response.meta.code !== 200) {
+      throw new errors.FeedRequestError('instagram', currentFeedId, response.meta.error_message, response.meta);
+    }
+    return {
+      posts: response.data.map(model.bind(null, currentFeedId)),
+      nextPageToken: response.pagination.next_max_id
+    };
   });
 };
 
@@ -35,17 +65,13 @@ Instagram.verifyConfig = function verifyInstagramConfig(config) {
     return new Error('instagram provider: access_token must be given');
   }
   if (!config.user) {
-    return new Error('instagram provider: user must be given');
+    return new Error('instagram provider: user name must be provided');
   }
 
   return null;
 };
 
-function prepare(response, count) {
-  return response.slice(0, count).map(model, this);
-}
-
-function model(item) {
+function model(currentFeedId, item) {
   var original = feedUtils.prefix(item, 'in-');
   return {
     id: 'inst:' + item.id,
@@ -63,14 +89,14 @@ function model(item) {
     link: item.link,
     extra: original,
     source: {
-      name: this.name,
-      feed: this.id
+      name: 'instagram',
+      feed: currentFeedId
     }
   };
 }
 
 function feedId(name, user) {
-  return name + ':' + user;
+  return name + ':' + (user || 'own');
 }
 
 function date(createdDate) {
