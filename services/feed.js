@@ -25,7 +25,7 @@ Feed.prototype.getProviders = function getProviders() {
 Feed.prototype.getFeedId = function getFeedId() {
   return this.getProviders()
     .then(function providersToFeedId(providers) {
-      return providers.sort(function compareProviders(p1, p2) {
+      return providers.slice().sort(function compareProviders(p1, p2) {
         var f1 = p1.feedId;
         var f2 = p2.feedId;
 

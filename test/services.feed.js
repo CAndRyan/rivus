@@ -43,9 +43,35 @@ describe('services.feed', function() {
       })
     ])
   });
+
+  it('maintains order of passed providers', function() {
+    var Feed = require('../services/feed');
+
+    var feed = new Feed(new Config({
+      providers: PROVIDERS_CONFIG_1
+    }));
+
+    function ids(providers) {
+      return providers.map(function(p) {
+        return p.feedId;
+      }).join('|');
+    }
+
+    return feed.getProviders().then(function(providers) {
+      expect(ids(providers)).to.eql(EXPECTED_IDS_IN_ORDER);
+
+      return feed.getFeedId().then(function(feedId) {
+        return feed.getProviders().then(function(sameProviders) {
+          expect(feedId).to.eql(EXPECTED_FEED_ID);
+          expect(ids(sameProviders)).to.eql(EXPECTED_IDS_IN_ORDER);
+        });
+      });
+    });
+  });
 });
 
 var EXPECTED_FEED_ID = 'facebook:user:12345|instagram:@r534134|medium:publication:publication|medium:publication_with_custom_domain:http://www.example.org|medium:user:@user|rss:http://www.example.org/export/1|twitter:@user';
+var EXPECTED_IDS_IN_ORDER = 'rss:http://www.example.org/export/1|instagram:@r534134|medium:user:@user|medium:publication:publication|medium:publication_with_custom_domain:http://www.example.org|facebook:user:12345|twitter:@user';
 
 var PROVIDERS_CONFIG_1 = [{
   "name": "rss",

@@ -91,7 +91,7 @@ describe('rivus', function() {
       });
     });
 
-    it('callback should get an error', function () {
+    it('callback should get an error', function (done) {
       var mock = nock(HOST).get(PATH).replyWithFile(200, RESPONSE);
 
       var Rivus = require('../rivus');
@@ -101,9 +101,11 @@ describe('rivus', function() {
           feed_url: 'http://www.example.org/export/2'
         }]
       });
-      return r.getFeed(2, function (err, response) {
+
+      r.getFeed(2, function (err, response) {
         expect(err).to.be.an('object');
         expect(response).to.be.an('undefined');
+        done();
       });
     });
 
@@ -139,15 +141,16 @@ describe('rivus', function() {
       });
     });
 
-    it('should ConfigError when an invalid file path', function () {
+    it('should ConfigError when an invalid file path', function (done) {
       var Rivus = require('../rivus');
       var r = new Rivus(__dirname + '/rivus-config.json');
-      return r.getFeed(function (err, response) {
+      r.getFeed(function (err, response) {
         expect(err.name).to.equal('ConfigError');
+        done();
       });
     });
 
-    it('should FeedRequestError when a service is 404', function () {
+    it('should FeedRequestError when a service is 404', function (done) {
       var HOST = 'http://www.example.org';
       var PATH = '/export/1';
       var RESPONSE = __dirname + '/replies/rss.rss';
@@ -155,9 +158,11 @@ describe('rivus', function() {
 
       var Rivus = require('../rivus');
       var r = new Rivus(__dirname + '/rivus_config.json');
-      return r.getFeed(function (err, response) {
+
+      r.getFeed(function (err, response) {
         expect(err.name).to.equal('FeedRequestError');
         expect(err.extra.status).to.equal(404);
+        done();
       });
     });
   });

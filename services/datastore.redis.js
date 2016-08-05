@@ -29,8 +29,13 @@ RedisDataStore.prototype.synchronizeFeed = function synchronizeFeed(feed, update
     .then(runUpdater.bind(null, client, updater, anchorKey));
 };
 
-RedisDataStore.prototype.getProviderPostsInRange = function getProviderPostsInRange(provider, startDate, endDate) {
-  return redisQuery(this.client, 'zrangebyscore', dateToRedis(startDate), dateToRedis(endDate))
+RedisDataStore.prototype.getFeedPosts = function getFeedPosts(feed, limit) {
+  return redisQuery(this.client, 'zrevrangebyscore', '+inf', '-inf', 'LIMIT', 0, limit)
+    .then(loadPostsByIds(null, this.client));
+};
+
+RedisDataStore.prototype.getProviderPostsInRange = function getProviderPostsInRange(provider, endDate, startDate) {
+  return redisQuery(this.client, 'zrangebyscore', dateToRedis(startDate, '-inf'), dateToRedis(endDate, '+inf'))
     .then(loadPostsByIds.bind(null, this.client));
 };
 
@@ -204,8 +209,8 @@ function redisOneOffQuery(client, command) {
   client[command].apply(client, args);
 }
 
-function dateToRedis(date) {
-  return date ? date.valueOf() : null;
+function dateToRedis(date, defaultValue) {
+  return date ? date.valueOf() : defaultValue;
 }
 
 function dateFromRedis(redisDate) {

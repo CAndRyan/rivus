@@ -1,6 +1,7 @@
 'use strict';
 
-var Promise = require('es6-promise');
+var Promise = require('es6-promise').Promise;
+var moment = require('moment');
 var deduplicate = require('./deduplicate');
 var log = require('../common/log');
 
@@ -10,15 +11,15 @@ function synchronizeFeed(feed, dataStore) {
     .then(function doSynchronizeFeed(feedId) {
       log.info('synchronizing feed', feedId, '...');
 
-      return feed.getProviders().then(function synchronizeFeedWithProviders(providers) {
-        return Promise.all(providers.map(synchronizeProvider.bind(null, dataStore)))
+      return feed.getProviders().then(function(providers) {
+        return synchronizeEachProvider(dataStore, providers)
           .then(mergeProviderUpdatesToFeed.bind(null, feed, dataStore, providers))
           .then(
-            function logSyncCompletion(result) {
+            function(result) {
               log.info('complete synchronizing feed', feedId);
               return result;
             },
-            function logSyncFailure(error) {
+            function(error) {
               log.error('error synchronizing feed', feedId, ': ', error);
               throw error;
             }
@@ -27,18 +28,32 @@ function synchronizeFeed(feed, dataStore) {
     });
 }
 
+function synchronizeEachProvider(dataStore, providers) {
+  return Promise.all(providers.map(synchronizeProvider.bind(null, dataStore)));
+}
+
 function synchronizeProvider(dataStore, provider) {
   return dataStore.synchronizeProvider(provider, function doSynchronizeProvider(savedLastPostDate, writeStore) {
     return loadNewPostsFromProvider(provider, savedLastPostDate)
-      .then(writeStore.addPostsToProvider.bind(writeStore, provider));
+      .then(function addNewPostsToProvider(newPosts) {
+        if (!newPosts.length) {
+          return Promise.resolve(savedLastPostDate);
+        }
+        return writeStore.savePosts(newPosts)
+          .then(writeStore.addPostsToProvider.bind(writeStore, provider, newPosts))
+          .then(function() {
+            return newPosts[0].created_time;
+          });
+      });
   });
 }
 
 function mergeProviderUpdatesToFeed(feed, dataStore, providers, newFeedDates) {
   return dataStore.synchronizeFeed(feed, function doSynchronizeFeed(savedFeedDates, writeStore) {
     const updates = collectUpdatesInFeed(providers, savedFeedDates, newFeedDates);
+
     if (!updates.length) {
-      return savedFeedDates;
+      return Promise.resolve(savedFeedDates);
     }
 
     return getPostsFromUpdates(updates, dataStore)
@@ -54,14 +69,23 @@ function mergeProviderUpdatesToFeed(feed, dataStore, providers, newFeedDates) {
 function collectUpdatesInFeed(providers, savedFeedDates, newFeedDates) {
   return providers
     .map(function getProviderUpdates(provider, index) {
+      var startDate = savedFeedDates[index];
+      var endDate = newFeedDates[index];
+
+      if (!startDate && !endDate) {
+        return null;
+      } else if (!startDate) {
+        startDate = moment(endDate).subtract(1, 'second');
+      }
+
       return {
         provider: provider,
-        startDate: savedFeedDates[index],
-        endDate: newFeedDates[index]
+        startDate: startDate,
+        endDate: endDate
       };
     })
     .filter(function filterChangedProviders(update) {
-      return update.startDate.isBefore(update.endDate) && !update.startDate.isSame(update.endDate);
+      return !!update && update.endDate.isAfter(update.startDate);
     });
 }
 
@@ -82,9 +106,15 @@ function collectUpdatedDateRange(updates) {
 }
 
 function getPostsFromUpdates(updates, dataStore) {
-  return Promise.all(updates.map(function getNewPosts(update) {
-    return dataStore.getProviderPostsInRange(update.provider, update.startDate, update.endDate);
-  })).then(function mergeNewPosts(postsByProvider) {
+  return Promise.all(updates.map(function(update) {
+    return dataStore.getProviderPostsInRange(update.provider, update.endDate, update.startDate)
+      .then(function(posts) {
+        if (update.startDate.isSame(posts[posts.length - 1].created_time)) {
+          return posts.slice(0, -1);
+        }
+        return posts;
+      });
+  })).then(function(postsByProvider) {
     return postsByProvider.reduce(function reducePosts(all, forCurrentProvider) {
       return all.concat(forCurrentProvider);
     }, []);
@@ -99,7 +129,7 @@ function loadNewPostsFromProvider(provider, savedPostDate) {
       for (var i = 0; i < data.posts.length; i++) {
         var postDate = data.posts[i].created_time;
 
-        if (!savedPostDate || postDate.isSame(savedPostDate) || postDate.isBefore(savedPostDate)) {
+        if (!!savedPostDate && postDate.isSameOrBefore(savedPostDate)) {
           return thisPagePosts;
         }
 
