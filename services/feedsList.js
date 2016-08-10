@@ -1,4 +1,4 @@
-'use strict';
+var deduplicate = require('./deduplicate');
 
 function sortBy(param, feeds) {
   if (param === 'date') {
@@ -10,5 +10,6 @@ function sortBy(param, feeds) {
 
 module.exports = function newFeedsList(feeds) {
   sortBy('date', feeds);
+  deduplicate(feeds);
   return feeds;
 };

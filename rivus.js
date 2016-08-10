@@ -37,7 +37,9 @@
 
     return this._dataStorePromise.then(function(dataStore) {
       if (dataStore) {
-        return dataStore.synchronizeFeed(feed);
+        return feed.getFeedId().then(function (id) {
+          return dataStore.synchronizeFeed({feedId: id})
+        });
       } else {
         return null;
       }
@@ -49,7 +51,9 @@
       if (!dataStore) {
         return rivus._feed.get(postCount);
       }
-      return dataStore.getFeedPosts(rivus._feed, postCount);
+      return rivus._feed.getFeedId().then(function (id) {
+        return dataStore.getFeedPosts(id, postCount);
+      });
     });
   }
 

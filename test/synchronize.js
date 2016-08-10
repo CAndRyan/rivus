@@ -141,20 +141,56 @@ describe('synchronization', function() {
         comparePosts(dataStore._postsForFeed(feed), feed._allPosts);
       });
   });
+
+  it('Duplicates should be removed', function() {
+    var inst = new MockProvider('instagram');
+    inst.addPosts(1, moment("2016-08-01 10:30:00", "YYYY-MM-DD HH:mm:ss"));
+
+    var tw = new MockProvider('twitter');
+    tw.addPosts(1, moment("2016-08-01 11:30:00", "YYYY-MM-DD HH:mm:ss"));
+
+    var feed = new MockFeed([inst, tw]);
+    var dataStore = new MockDataStore(feed);
+
+    inst.addPosts(1, moment("2016-08-01 11:50:00", "YYYY-MM-DD HH:mm:ss"));
+    tw.addPosts(1, moment("2016-08-01 11:50:01", "YYYY-MM-DD HH:mm:ss"));
+
+    inst.addPosts(1, moment("2016-08-01 11:55:00", "YYYY-MM-DD HH:mm:ss"));
+    tw.addPosts(1, moment("2016-08-01 11:55:01", "YYYY-MM-DD HH:mm:ss"));
+
+
+    return synchronize(feed, dataStore)
+      .then(function() {
+        return expect(dataStore._postsForFeed(feed).length).to.eql(4);
+      });
+  });
+
+  it('Duplicates should be removed when empty initial data', function() {
+    var inst = new MockProvider('instagram');
+    var tw = new MockProvider('twitter');
+
+    var feed = new MockFeed([inst, tw]);
+    var dataStore = new MockDataStore(feed);
+
+    inst.addPosts(1, moment("2016-08-01 11:50:00", "YYYY-MM-DD HH:mm:ss"));
+    tw.addPosts(1, moment("2016-08-01 11:50:01", "YYYY-MM-DD HH:mm:ss"));
+
+    return synchronize(feed, dataStore)
+      .then(function() {
+        return expect(dataStore._postsForFeed(feed).length).to.eql(1);
+      });
+  });
 });
 
 function comparePosts(p1, p2) {
-  p1 = p1.map(function(post) {
-    return Object.assign({}, post, {
-      created_time: post.created_time.format()
-    });
-  });
+  function mapPost(post) {
+    var time = post.created_time.format();
+    var newPost = JSON.parse(JSON.stringify(post));
+    newPost.created_time = time;
+    return newPost;
+  }
 
-  p2 = p2.map(function(post) {
-    return Object.assign({}, post, {
-      created_time: post.created_time.format()
-    });
-  });
-
+  p1 = p1.map(mapPost);
+  p2 = p2.map(mapPost);
   expect(p1).to.eql(p2);
 }

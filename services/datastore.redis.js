@@ -1,6 +1,6 @@
 'use strict';
 
-var Promise = require('es6-promise');
+var Promise = require('es6-promise').Promise;
 var redis = require('redis');
 var moment = require('moment');
 
@@ -30,7 +30,7 @@ RedisDataStore.prototype.synchronizeFeed = function synchronizeFeed(feed, update
 };
 
 RedisDataStore.prototype.getFeedPosts = function getFeedPosts(feed, limit) {
-  return redisQuery(this.client, 'zrevrangebyscore', '+inf', '-inf', 'LIMIT', 0, limit)
+  return redisQuery(this.client, 'zrevrangebyscore', feed, Number.MAX_VALUE, Number.MIN_VALUE, 'LIMIT', 0, limit)
     .then(loadPostsByIds(null, this.client));
 };
 
@@ -181,10 +181,11 @@ function postKey(post) {
 }
 
 function redisQuery(client, command) {
+  var rawArgs = arguments;
   return new Promise(function runAsyncQuery(resolve, reject) {
-    var args = [command];
-    for (var i = 2; i < arguments.length; i++) {
-      args.push(arguments[i]);
+    var args = [];
+    for (var i = 2; i < rawArgs.length; i++) {
+      args.push(rawArgs[i]);
     }
 
     log.debug.apply(log, ['Redis:'].concat(args));

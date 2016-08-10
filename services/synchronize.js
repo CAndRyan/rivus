@@ -50,16 +50,16 @@ function synchronizeProvider(dataStore, provider) {
 
 function mergeProviderUpdatesToFeed(feed, dataStore, providers, newFeedDates) {
   return dataStore.synchronizeFeed(feed, function doSynchronizeFeed(savedFeedDates, writeStore) {
-    const updates = collectUpdatesInFeed(providers, savedFeedDates, newFeedDates);
+    var updates = collectUpdatesInFeed(providers, savedFeedDates, newFeedDates);
 
     if (!updates.length) {
       return Promise.resolve(savedFeedDates);
     }
 
     return getPostsFromUpdates(updates, dataStore)
+      .then(deduplicate)
       .then(writeStore.addPostsToFeed.bind(writeStore, feed))
       .then(collectUpdatedDateRange.bind(null, updates))
-      .then(deduplicate.bind(null, feed, dataStore, writeStore))
       .then(function returnNewFeedDates() {
         return newFeedDates;
       });
