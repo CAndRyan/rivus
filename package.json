@@ -1,6 +1,6 @@
 {
   "name": "riv-us",
-  "version": "1.0.1",
+  "version": "1.1.2",
   "description": "Social aggregator for your feeds",
   "main": "rivus.js",
   "dependencies": {
@@ -33,7 +33,7 @@
     "rewire": "^2.5.2"
   },
   "scripts": {
-    "test": "gulp test-report"
+    "test": "gulp"
   },
   "repository": {
     "type": "git",
