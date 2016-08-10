@@ -38,8 +38,12 @@ Instagram.prototype.getPage = function getPage(count, pageToken) {
 
   return new Promise(function requestInstagramPage(resolve, reject) {
     https.get(url, function readInstagramResponse(message) {
+      var body = '';
       message.on('data', function processInstagramResponse(responseData) {
-        resolve(JSON.parse(responseData.toString('utf8')));
+        body += responseData.toString('utf8');
+      });
+      message.on('end', function processInstagramResponse(responseData) {
+        resolve(JSON.parse(body));
       });
     })
       .on('error', function processInstagramResponseError(error) {
