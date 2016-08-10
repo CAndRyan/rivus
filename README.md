@@ -21,7 +21,7 @@ $ npm install riv-us
 # How To Use Rivus
 **Step 1**: Set your the provider configuration file up correctly to support what providers you want to use and the settings / authentication needed.
 
-* Medium: Copy user name from URL https://medium.com/@<your_medium_username.
+* Medium: Copy user name from URL https://medium.com/@your_medium_username.
 Put this in the field 'user' in the configuration. To get publication's feed copy the name of publication https ://medium.com/the-story and put it in the field "publication". If feed situated at the custom domain, copy only domain and put it in the field "publication_with_custom_domain".
 * RSS: List the URL of the feed you are interested in the field "feed_url".
 * Twitter: Create an application at https://apps.twitter.com/app/new. Go into the details of the generated application and find: Consumer Key (API Key), Consumer Secret (API Secret), Access Token, Access Token Secret. Copy these values and your account name @username in the appropriate configuration fields.
@@ -199,10 +199,6 @@ Tests for Rivus can be run using the command:
 ```
 gulp test
 ```
-
-# TODO
-* More providers
-* Tests
 
 # Authors
 Jared Wray [jaredwray.com](http://jaredwray.com)
