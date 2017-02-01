@@ -1,5 +1,5 @@
-# Rivus (https://riv.us) [![Circle CI](https://circleci.com/gh/jaredwray/rivus.svg?style=svg&circle-token=a205a8a619b81eb76f74b8bad198065576252fa7)](https://circleci.com/gh/jaredwray/rivus)
-Social aggregation into a single feed (example: jaredwray.com)
+# Rivus (https://riv.us)
+Social aggregation into a single feed (example: [jaredwray.com](https://jaredwray.com/))
 
 # Features
 * Single Feed
@@ -11,7 +11,7 @@ Social aggregation into a single feed (example: jaredwray.com)
 
 # Install
 
-Requires Node.js v0.10 or higher.
+Requires Node.js v5.9.1 or higher.
 
 **Using NPM**
 ```
@@ -32,15 +32,6 @@ Put this in the field 'user' in the configuration. To get publication's feed cop
 {
     "dataStore": {
         "type": "none",
-        "settings": {
-        }
-    },
-    "cache": {
-        "store": "memory",
-        "settings": {
-            "ttl": 3600, // seconds
-            "max": 25
-        }
     },
     "providers": [
         {
@@ -81,83 +72,105 @@ Put this in the field 'user' in the configuration. To get publication's feed cop
     ]
 }
 ```
-**Step 2**: Do the following code to get the feed results (using promises. Note that callback are also supported):
+
+*dataStore* is optional. In case this section isn't specified will be used in-memory data store. 
+As alternative you can set redis as a default data store:
+
+```
+"dataStore": {
+  "type": "redis",
+  "settings": {
+    // here you can configure 'path', 'host', 'port' and 'password'
+  }
+}
+```
+
+**Step 2**: Do the following code to get the feed results:
 ```javascript
-    var Rivus = require("riv-us");
+    var Rivus = require('riv-us');
 
-    var rivus = new Rivus(__dirname + "../path/to/config"); // the config should list the providers and their settings
+    // the config should list the providers and their settings
+    var rivus = new Rivus(__dirname + "../path/to/config"); 
 
-    // or with object
+    // or with an object
     var rivus = new Rivus({...});
-
-    // using promises
-    rivus.get().then(function(result) {
-        console.log(result);
-    }).catch(function(error) {
-        console.log(error);
+    
+    // load the data and store it in your data source (in-memory by default)
+    rivus.synchronize().then(function() {
+      // now you can get your feed
+      rivus.getFeed().then(function(posts) {
+        console.log('My Feed: ', posts);
+      }, function(error) {
+        console.error('Riv-us could not get posts: ', error);        
+      });
+      
+      // configure synchronization with a periodic time interval
+      setInterval(function() {
+        console.log('starting scheduled synchronization...');
+      
+        rivus.synchronize().then(function() {
+          console.log('scheduled synchronization completed');          
+        }, function(error) {
+          console.error('scheduled synchronization failed: ', error);
+        })
+      }, 1000 * 60 * 60 * 2 /* every 2 hours */);
+      
+    }, function(error) {
+      console.error('Riv-us could not synchronize: ', error);
     });
-
-    // or using callback
-    rivus.get(function (err, result) {
-        console.log(err, result);
-    });
-
-    // or using callback and count
-    rivus.get(10, function (err, result) {
-        console.log(err, result);
-    });
-
 ```
 
 By default the following is enabled:
-* In Memory Caching with a TTL of 3600 (1 Hour)
 * Deduplication is enabled by default.
 
-**Environment variables**: Rivus can use environment variables. It should include environment-specific values such as API keys.
+**Environment variables**: Rivus can use environment variables. You have 2 options with env vars:
+
+Use javascript object config:
+```javascript
+var rivus = new Rivus({
+  dataStore: {
+    type: "redis",
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+  }
+})
 ```
+
+Use config file with variable interpolation:
+```json
 {
-    "name": "facebook",
-    "app_id": "process.env.DEV.app_id",
-    "app_secret": "process.env.DEV.app_secret",
-    "user_id": "userid"
+  "dataStore": {
+    "type": "redis",
+    "port": "${REDIS_PORT}"
+  }
 }
 ```
+
 **Date display**: Moment.js allows you to easily manipulate created time.
-```
+```javascript
 rivus.get(function (err, result) {
     result[0].created_time.format('dddd'); // Wednesday
 });
 
 ```
-**Redis cache**: Example of config caching using Redis.
-```
-"cache": {
-    "store": "redis",
-    "settings": {
-        "ttl": 3600,
-        "host": "localhost",
-        "port": 6379,
-        "auth_pass": "",
-        "db": 0,
-    }
-}
 
-```
-**Multi cache**: Example of config using Multi cache.
-```
-"cache": [
-    {
-      "store": "memory",
-      "settings": {
-        "ttl": 3600
-      }
-    },
-    {
-      "store": "redis",
-      "ttl": 3600
-    }
-]
+**Filter Function**: provide a javascript filter function to filter incoming posts; posts which are filtered out will be completely missed and not appear in your data store.
+```javascript
+const rivus = new Rivus({
+  dataStore: {
+    // ...
+  },
+  providers: [
+    // ...
+  ]
+});
 
+rivus.filter.add(function(feedItem) {
+  //do something in here where you can modify the feed item if you want
+
+  //return if it should be included in the feed that is returned all rolled up
+  return true || false;
+});
 ```
 
 # Standard Feed Result
@@ -197,7 +210,7 @@ Here is a list of providers currently supported:
 # Tests
 Tests for Rivus can be run using the command:
 ```
-gulp test
+npm test
 ```
 
 # Authors
