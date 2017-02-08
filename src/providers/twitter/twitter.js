@@ -68,7 +68,7 @@ function images(entities) {
 
   return {
     thumbnail: {
-      url: entities.media[0].media_url
+      url: entities.media[0].media_url_https || entities.media[0].media_url
     }
   };
 }
